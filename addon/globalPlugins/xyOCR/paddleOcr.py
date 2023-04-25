@@ -1,4 +1,3 @@
-from logHandler import log
 from contentRecog import ContentRecognizer
 from .PPOCR_api import PPOCR
 from datetime import datetime
@@ -43,7 +42,7 @@ class PaddleOcr(ContentRecognizer):
             self._delete_pidfile()
 
     def recognize(self, pixels, imageInfo, onResult):
-        # Create a temporary file of JPEG image
+        # Create a temporary file of BMP image
         f = tempfile.TemporaryFile(suffix = ".bmp")
         image_filename = f.name
         f.close()
@@ -76,6 +75,17 @@ class PaddleOcr(ContentRecognizer):
             lines.append(words)
         result = LinesWordsResult(lines, imageInfo)
         onResult(result)
+
+    def recognize_clipboard(self):
+        res = self.ocr.runClipboard()
+        # The code=100 success
+        if res.get("code") != 100:
+            # Translators: Recognition failed
+            ui.message(_("Recognition failed"))
+            return
+        data = res.get("data")
+        result = "\r\n".join([item.get("text") for item in data])
+        return result
 
     def cancel(self):
         pass
@@ -124,4 +134,3 @@ class PaddleOcr(ContentRecognizer):
         finally:
             if hProcess is not None:
                 winKernel.kernel32.CloseHandle(hProcess)
-

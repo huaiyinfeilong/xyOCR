@@ -24,3 +24,9 @@
 * 电子邮箱：huaiyinfeilong@163.com
 * QQ：354522977
 * 微信：huaiyinfeilong
+
+## 升级日志
+
+### Version 1.1
+
+* 增加剪贴板识别功能，热键：NVDA+SHIFT+ALT+O

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 'xyOCR' '1.0'\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
-"POT-Creation-Date: 2023-04-17 23:45+0800\n"
-"PO-Revision-Date: 2023-04-17 23:46+0800\n"
+"POT-Creation-Date: 2023-04-25 21:03+0800\n"
+"PO-Revision-Date: 2023-04-25 22:03+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh_CN\n"
@@ -22,25 +22,42 @@ msgstr ""
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on
 #. to be shown on installation and add-on information found in Add-ons Manager.
-#: addon\globalPlugins\xyOCR\__init__.py:15 buildVars.py:23
+#: addon\globalPlugins\xyOCR\__init__.py:12 buildVars.py:23
 msgid "Xinyi OCR"
 msgstr "新翼OCR"
 
-#. Translators: Category name
-#: addon\globalPlugins\xyOCR\__init__.py:21
+#. Translators: Text recognition
+#: addon\globalPlugins\xyOCR\__init__.py:25
 msgid "Text recognition"
 msgstr "文字识别"
 
 #. Translators: Recognition failed
-#: addon\globalPlugins\xyOCR\__init__.py:25
+#: addon\globalPlugins\xyOCR\__init__.py:32
 msgid "Recognition failed"
 msgstr "识别失败"
+
+#. Translators: Clipboard recognition
+#: addon\globalPlugins\xyOCR\__init__.py:37
+msgid "Clipboard recognition"
+msgstr "剪贴板识别"
+
+#. Translators: Virtual document title: Recognition result
+#: addon\globalPlugins\xyOCR\__init__.py:43
+msgid "Recognition result"
+msgstr "识别结果"
+
+#. Translators: Already in a content recognition result
+#: addon\globalPlugins\xyOCR\__init__.py:47
+msgid "Already in a content recognition result"
+msgstr "现已处于内容识别结果区域"
+
+#. Translators: Recognizing
+#: addon\globalPlugins\xyOCR\__init__.py:50
+msgid "Recognizing"
+msgstr "正在识别"
 
 #. Add-on description
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
 #: buildVars.py:26
 msgid "Aggregating various offline and online OCR services"
 msgstr "聚合各种离线和在线 OCR 服务"
-
-#~ msgid "Start recognizing"
-#~ msgstr "开始识别"
