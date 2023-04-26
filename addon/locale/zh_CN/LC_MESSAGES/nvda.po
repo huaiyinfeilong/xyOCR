@@ -7,57 +7,75 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 'xyOCR' '1.0'\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
-"POT-Creation-Date: 2023-04-25 21:03+0800\n"
-"PO-Revision-Date: 2023-04-25 22:03+0800\n"
+"POT-Creation-Date: 2023-04-29 21:45+0800\n"
+"PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Poedit 3.2.2\n"
 
 #. Translators: Script description
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on
 #. to be shown on installation and add-on information found in Add-ons Manager.
-#: addon\globalPlugins\xyOCR\__init__.py:12 buildVars.py:23
+#: addon\globalPlugins\xyOCR\__init__.py:16 buildVars.py:23
 msgid "Xinyi OCR"
 msgstr "新翼OCR"
 
-#. Translators: Text recognition
-#: addon\globalPlugins\xyOCR\__init__.py:25
-msgid "Text recognition"
-msgstr "文字识别"
-
 #. Translators: Recognition failed
-#: addon\globalPlugins\xyOCR\__init__.py:32
+#: addon\globalPlugins\xyOCR\__init__.py:27
+#: addon\globalPlugins\xyOCR\__init__.py:41
 msgid "Recognition failed"
 msgstr "识别失败"
 
+#. Translators: Text recognition
+#: addon\globalPlugins\xyOCR\__init__.py:34
+msgid "Text recognition"
+msgstr "文字识别"
+
 #. Translators: Clipboard recognition
-#: addon\globalPlugins\xyOCR\__init__.py:37
+#: addon\globalPlugins\xyOCR\__init__.py:52
 msgid "Clipboard recognition"
 msgstr "剪贴板识别"
 
-#. Translators: Virtual document title: Recognition result
-#: addon\globalPlugins\xyOCR\__init__.py:43
-msgid "Recognition result"
-msgstr "识别结果"
-
 #. Translators: Already in a content recognition result
-#: addon\globalPlugins\xyOCR\__init__.py:47
+#: addon\globalPlugins\xyOCR\__init__.py:65
 msgid "Already in a content recognition result"
 msgstr "现已处于内容识别结果区域"
 
 #. Translators: Recognizing
-#: addon\globalPlugins\xyOCR\__init__.py:50
+#: addon\globalPlugins\xyOCR\__init__.py:68
 msgid "Recognizing"
 msgstr "正在识别"
+
+#. Translators: title of the error dialog shown when trying to install the add-on in unsupported systems.
+#: addon\installTasks.py:16
+msgid "Unable to complete installation"
+msgstr "无法完成安装"
+
+#. Translators: Dialog text shown when trying to install the add-on on an unsupported processor architecture.
+#: addon\installTasks.py:19
+msgid ""
+"This addon can only run on 64-bit systems, but you are currently using a 32-"
+"bit system, so the installation cannot be completed."
+msgstr ""
+"此插件仅能在64位系统上运行，但您当前使用的是32位系统，因此无法完成安装。"
 
 #. Add-on description
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
 #: buildVars.py:26
 msgid "Aggregating various offline and online OCR services"
 msgstr "聚合各种离线和在线 OCR 服务"
+
+#~ msgid "Unsupported architecture"
+#~ msgstr "不支持的体系结构"
+
+#~ msgid ""
+#~ "You are using {Architecture} processor not supported by this add-on.\n"
+#~ msgstr "您正在使用此插件不支持的 {Architecture} 处理器。\\n\n"
+
+#~ msgid "Recognition result"
+#~ msgstr "识别结果"

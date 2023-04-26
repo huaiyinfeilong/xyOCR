@@ -12,3 +12,6 @@ rec_char_dict_path ppocr_keys_v1.txt
 
 # 切换 PPOCR-v2版 模型库需要改为32（删除下一行的#符号）
 #rec_img_h 32
+
+# 关闭缓存，避免内存增长，但可能影响识别速度
+#enable_mkldnn 0

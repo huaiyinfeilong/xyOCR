@@ -1,27 +1,40 @@
 # Xinyi OCR
 
-This is an NVDA OCR recognition addon developed based on the PaddleOCR_json offline OCR component.
+This is an NVDA OCR recognition add-on developed based on the PaddleOCR_json offline OCR component.
 
-This addon currently only connects to PaddleOCR_ JSON's local OCR recognition engine will automatically install PaddleOCR after installing the addon_ JSON component. In the future, other offline and online OCR recognition engines will be gradually connected.
+This add-on is currently only connected to the local OCR recognition engine of PaddleOCR_json, and the PaddleOCR_json component will be automatically installed after the add-on is installed. In the future, other offline and online OCR recognition engines will be gradually connected.
 
-## Addon Benefits
+## Addon Advantages
 
-* The recognition speed is fast, about 100ms, and the actual situation varies depending on the computer performance configuration.
+* The recognition speed is fast, about 100ms, and the actual situation varies with the performance configuration of the computer.
 * Strong recognition accuracy, comparable to online recognition.
-* The text coordinates of the recognition result are accurate, and the click response of the result text is accurate.
+* The coordinates of the recognition result text are accurate, and the click response of the result text is accurate.
 
-## Usage method
+## Keyboard Shortcuts
 
-Shortcut keys: NVDA+ALT+O
+* Navigation object recognition: NVDA+ALT+O
+* Clipboard recognition: NVDA+ALT+SHIFT+O
 
-Shortcut key settings: Shortcut keys can be set for the "Text Recognition" command under the "New Wing OCR" category in the "Keys and Gestures" settings.
+Shortcut key settings: You can set shortcut keys for each command under the "Xinyi OCR" category in the "Keys and Gestures" setting.
 
 ## Feedback Contact
 
-If you have any opinions or suggestions, please feel free to communicate:
+Any comments and suggestions are welcome to communicate:
 
 * Project address: https://github.com/huaiyinfeilong/xyocr
-
-* Email: huaiyinfeilong@163.com
+* E-mail: huaiyinfeilong@163.com
 * QQ: 354522977
 * WeChat: huaiyinfeilong
+
+## Upgrade log
+
+### Version 1.2
+
+* Added environment detection during installation, and will give a prompt that the installation cannot be completed for a non-64-bit system environment.
+* Fixed the problem that PaddleOCR_json.exe would not exit automatically when NVDA exited abnormally, and continued to survive.
+* Fix the problem that OCR recognition takes up too much memory as the number of recognitions increases.
+* Fixed NVDA suspended animation problem during OCR recognition.
+
+### Version 1.1
+
+* Add clipboard recognition function, hotkey: NVDA+SHIFT+ALT+O
