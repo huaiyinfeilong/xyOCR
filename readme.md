@@ -28,6 +28,10 @@ Any comments and suggestions are welcome to communicate:
 
 ## Upgrade log
 
+### Version 1.3
+
+* Fix the problem that the version below NVDA 2023.1 cannot be installed.
+
 ### Version 1.2
 
 * Added environment detection during installation, and will give a prompt that the installation cannot be completed for a non-64-bit system environment.
