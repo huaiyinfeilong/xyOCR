@@ -7,25 +7,6 @@ import re
 import time
 import zlib
 
-from ._util import py3
-
-try:
-    from UserDict import UserDict  # Python 2.x
-except ImportError:
-    UserDict = collections.UserDict  # Python 3.x
-
-
-if py3:  # Python 3.x
-
-    def make_bytes(s):
-        return s.encode("us-ascii")
-
-
-else:  # Python 2.x
-
-    def make_bytes(s):  # pragma: no cover
-        return s  # pragma: no cover
-
 
 # see 7.9.2.2 Text String Type on page 86 and D.3 PDFDocEncoding Character Set
 # on page 656
@@ -34,57 +15,55 @@ def encode_text(s):
 
 
 PDFDocEncoding = {
-    0x16: u"\u0017",
-    0x18: u"\u02D8",
-    0x19: u"\u02C7",
-    0x1A: u"\u02C6",
-    0x1B: u"\u02D9",
-    0x1C: u"\u02DD",
-    0x1D: u"\u02DB",
-    0x1E: u"\u02DA",
-    0x1F: u"\u02DC",
-    0x80: u"\u2022",
-    0x81: u"\u2020",
-    0x82: u"\u2021",
-    0x83: u"\u2026",
-    0x84: u"\u2014",
-    0x85: u"\u2013",
-    0x86: u"\u0192",
-    0x87: u"\u2044",
-    0x88: u"\u2039",
-    0x89: u"\u203A",
-    0x8A: u"\u2212",
-    0x8B: u"\u2030",
-    0x8C: u"\u201E",
-    0x8D: u"\u201C",
-    0x8E: u"\u201D",
-    0x8F: u"\u2018",
-    0x90: u"\u2019",
-    0x91: u"\u201A",
-    0x92: u"\u2122",
-    0x93: u"\uFB01",
-    0x94: u"\uFB02",
-    0x95: u"\u0141",
-    0x96: u"\u0152",
-    0x97: u"\u0160",
-    0x98: u"\u0178",
-    0x99: u"\u017D",
-    0x9A: u"\u0131",
-    0x9B: u"\u0142",
-    0x9C: u"\u0153",
-    0x9D: u"\u0161",
-    0x9E: u"\u017E",
-    0xA0: u"\u20AC",
+    0x16: "\u0017",
+    0x18: "\u02D8",
+    0x19: "\u02C7",
+    0x1A: "\u02C6",
+    0x1B: "\u02D9",
+    0x1C: "\u02DD",
+    0x1D: "\u02DB",
+    0x1E: "\u02DA",
+    0x1F: "\u02DC",
+    0x80: "\u2022",
+    0x81: "\u2020",
+    0x82: "\u2021",
+    0x83: "\u2026",
+    0x84: "\u2014",
+    0x85: "\u2013",
+    0x86: "\u0192",
+    0x87: "\u2044",
+    0x88: "\u2039",
+    0x89: "\u203A",
+    0x8A: "\u2212",
+    0x8B: "\u2030",
+    0x8C: "\u201E",
+    0x8D: "\u201C",
+    0x8E: "\u201D",
+    0x8F: "\u2018",
+    0x90: "\u2019",
+    0x91: "\u201A",
+    0x92: "\u2122",
+    0x93: "\uFB01",
+    0x94: "\uFB02",
+    0x95: "\u0141",
+    0x96: "\u0152",
+    0x97: "\u0160",
+    0x98: "\u0178",
+    0x99: "\u017D",
+    0x9A: "\u0131",
+    0x9B: "\u0142",
+    0x9C: "\u0153",
+    0x9D: "\u0161",
+    0x9E: "\u017E",
+    0xA0: "\u20AC",
 }
 
 
 def decode_text(b):
     if b[: len(codecs.BOM_UTF16_BE)] == codecs.BOM_UTF16_BE:
         return b[len(codecs.BOM_UTF16_BE) :].decode("utf_16_be")
-    elif py3:  # Python 3.x
+    else:
         return "".join(PDFDocEncoding.get(byte, chr(byte)) for byte in b)
-    else:  # Python 2.x
-        return u"".join(PDFDocEncoding.get(ord(byte), byte) for byte in b)
 
 
 class PdfFormatError(RuntimeError):
@@ -159,9 +138,10 @@ class XrefTable:
         elif key in self.deleted_entries:
             generation = self.deleted_entries[key]
         else:
-            raise IndexError(
+            msg = (
                 "object ID " + str(key) + " cannot be deleted because it doesn't exist"
             )
+            raise IndexError(msg)
 
     def __contains__(self, key):
         return key in self.existing_entries or key in self.new_entries
@@ -196,26 +176,24 @@ class XrefTable:
             else:
                 contiguous_keys = keys
                 keys = None
-            f.write(make_bytes("%d %d\n" % (contiguous_keys[0], len(contiguous_keys))))
+            f.write(b"%d %d\n" % (contiguous_keys[0], len(contiguous_keys)))
             for object_id in contiguous_keys:
                 if object_id in self.new_entries:
-                    f.write(make_bytes("%010d %05d n \n" % self.new_entries[object_id]))
+                    f.write(b"%010d %05d n \n" % self.new_entries[object_id])
                 else:
                     this_deleted_object_id = deleted_keys.pop(0)
                     check_format_condition(
                         object_id == this_deleted_object_id,
-                        "expected the next deleted object ID to be %s, instead found %s"
-                        % (object_id, this_deleted_object_id),
+                        f"expected the next deleted object ID to be {object_id}, "
+                        f"instead found {this_deleted_object_id}",
                     )
                     try:
                         next_in_linked_list = deleted_keys[0]
                     except IndexError:
                         next_in_linked_list = 0
                     f.write(
-                        make_bytes(
-                            "%010d %05d f \n"
-                            % (next_in_linked_list, self.deleted_entries[object_id])
-                        )
+                        b"%010d %05d f \n"
+                        % (next_in_linked_list, self.deleted_entries[object_id])
                     )
         return startxref
 
@@ -241,54 +219,41 @@ class PdfName:
         return hash(self.name)
 
     def __repr__(self):
-        return "PdfName(%s)" % repr(self.name)
+        return f"PdfName({repr(self.name)})"
 
     @classmethod
     def from_pdf_stream(cls, data):
         return cls(PdfParser.interpret_name(data))
 
-    allowed_chars = set(range(33, 127)) - set(ord(c) for c in "#%/()<>[]{}")
+    allowed_chars = set(range(33, 127)) - {ord(c) for c in "#%/()<>[]{}"}
 
     def __bytes__(self):
         result = bytearray(b"/")
         for b in self.name:
-            if py3:  # Python 3.x
-                if b in self.allowed_chars:
-                    result.append(b)
-                else:
-                    result.extend(make_bytes("#%02X" % b))
-            else:  # Python 2.x
-                if ord(b) in self.allowed_chars:
-                    result.append(b)
-                else:
-                    result.extend(b"#%02X" % ord(b))
+            if b in self.allowed_chars:
+                result.append(b)
+            else:
+                result.extend(b"#%02X" % b)
         return bytes(result)
-
-    __str__ = __bytes__
 
 
 class PdfArray(list):
     def __bytes__(self):
         return b"[ " + b" ".join(pdf_repr(x) for x in self) + b" ]"
 
-    __str__ = __bytes__
 
-
-class PdfDict(UserDict):
+class PdfDict(collections.UserDict):
     def __setattr__(self, key, value):
         if key == "data":
-            if hasattr(UserDict, "__setattr__"):
-                UserDict.__setattr__(self, key, value)
-            else:
-                self.__dict__[key] = value
+            collections.UserDict.__setattr__(self, key, value)
         else:
             self[key.encode("us-ascii")] = value
 
     def __getattr__(self, key):
         try:
             value = self[key.encode("us-ascii")]
-        except KeyError:
-            raise AttributeError(key)
+        except KeyError as e:
+            raise AttributeError(key) from e
         if isinstance(value, bytes):
             value = decode_text(value)
         if key.endswith("Date"):
@@ -324,23 +289,13 @@ class PdfDict(UserDict):
         out.extend(b"\n>>")
         return bytes(out)
 
-    if not py3:
-        __str__ = __bytes__
-
 
 class PdfBinary:
     def __init__(self, data):
         self.data = data
 
-    if py3:  # Python 3.x
-
-        def __bytes__(self):
-            return make_bytes("<%s>" % "".join("%02X" % b for b in self.data))
-
-    else:  # Python 2.x
-
-        def __str__(self):
-            return "<%s>" % "".join("%02X" % ord(b) for b in self.data)
+    def __bytes__(self):
+        return b"<%s>" % b"".join(b"%02X" % b for b in self.data)
 
 
 class PdfStream:
@@ -360,9 +315,8 @@ class PdfStream:
                 expected_length = self.dictionary.Length
             return zlib.decompress(self.buf, bufsize=int(expected_length))
         else:
-            raise NotImplementedError(
-                "stream filter %s unknown/unsupported" % repr(self.dictionary.Filter)
-            )
+            msg = f"stream filter {repr(self.dictionary.Filter)} unknown/unsupported"
+            raise NotImplementedError(msg)
 
 
 def pdf_repr(x):
@@ -374,7 +328,7 @@ def pdf_repr(x):
         return b"null"
     elif isinstance(x, (PdfName, PdfDict, PdfArray, PdfBinary)):
         return bytes(x)
-    elif isinstance(x, int):
+    elif isinstance(x, (int, float)):
         return str(x).encode("us-ascii")
     elif isinstance(x, time.struct_time):
         return b"(D:" + time.strftime("%Y%m%d%H%M%SZ", x).encode("us-ascii") + b")"
@@ -382,9 +336,7 @@ def pdf_repr(x):
         return bytes(PdfDict(x))
     elif isinstance(x, list):
         return bytes(PdfArray(x))
-    elif (py3 and isinstance(x, str)) or (
-        not py3 and isinstance(x, unicode)  # noqa: F821
-    ):
+    elif isinstance(x, str):
         return pdf_repr(encode_text(x))
     elif isinstance(x, bytes):
         # XXX escape more chars? handle binary garbage
@@ -404,7 +356,8 @@ class PdfParser:
 
     def __init__(self, filename=None, f=None, buf=None, start_offset=0, mode="rb"):
         if buf and f:
-            raise RuntimeError("specify buf or f or filename, but not both buf and f")
+            msg = "specify buf or f or filename, but not both buf and f"
+            raise RuntimeError(msg)
         self.filename = filename
         self.buf = buf
         self.f = f
@@ -471,7 +424,7 @@ class PdfParser:
         self.f.write(b"%PDF-1.4\n")
 
     def write_comment(self, s):
-        self.f.write(("%% %s\n" % (s,)).encode("utf-8"))
+        self.f.write(f"% {s}\n".encode())
 
     def write_catalog(self):
         self.del_root()
@@ -533,7 +486,7 @@ class PdfParser:
         self.f.write(
             b"trailer\n"
             + bytes(PdfDict(trailer_dict))
-            + make_bytes("\nstartxref\n%d\n%%%%EOF" % start_xref)
+            + b"\nstartxref\n%d\n%%%%EOF" % start_xref
         )
 
     def write_page(self, ref, *objs, **dict_obj):
@@ -622,40 +575,42 @@ class PdfParser:
             self.xref_table[reference.object_id] = (offset, 0)
         return reference
 
-    delimiter = br"[][()<>{}/%]"
-    delimiter_or_ws = br"[][()<>{}/%\000\011\012\014\015\040]"
-    whitespace = br"[\000\011\012\014\015\040]"
-    whitespace_or_hex = br"[\000\011\012\014\015\0400-9a-fA-F]"
+    delimiter = rb"[][()<>{}/%]"
+    delimiter_or_ws = rb"[][()<>{}/%\000\011\012\014\015\040]"
+    whitespace = rb"[\000\011\012\014\015\040]"
+    whitespace_or_hex = rb"[\000\011\012\014\015\0400-9a-fA-F]"
     whitespace_optional = whitespace + b"*"
     whitespace_mandatory = whitespace + b"+"
-    newline_only = br"[\r\n]+"
-    newline = whitespace_optional + newline_only + whitespace_optional
+    # No "\012" aka "\n" or "\015" aka "\r":
+    whitespace_optional_no_nl = rb"[\000\011\014\040]*"
+    newline_only = rb"[\r\n]+"
+    newline = whitespace_optional_no_nl + newline_only + whitespace_optional_no_nl
     re_trailer_end = re.compile(
         whitespace_mandatory
-        + br"trailer"
+        + rb"trailer"
         + whitespace_optional
-        + br"\<\<(.*\>\>)"
+        + rb"<<(.*>>)"
         + newline
-        + br"startxref"
+        + rb"startxref"
         + newline
-        + br"([0-9]+)"
+        + rb"([0-9]+)"
         + newline
-        + br"%%EOF"
+        + rb"%%EOF"
         + whitespace_optional
-        + br"$",
+        + rb"$",
         re.DOTALL,
     )
     re_trailer_prev = re.compile(
         whitespace_optional
-        + br"trailer"
+        + rb"trailer"
         + whitespace_optional
-        + br"\<\<(.*?\>\>)"
+        + rb"<<(.*?>>)"
         + newline
-        + br"startxref"
+        + rb"startxref"
         + newline
-        + br"([0-9]+)"
+        + rb"([0-9]+)"
         + newline
-        + br"%%EOF"
+        + rb"%%EOF"
         + whitespace_optional,
         re.DOTALL,
     )
@@ -699,12 +654,12 @@ class PdfParser:
     re_whitespace_optional = re.compile(whitespace_optional)
     re_name = re.compile(
         whitespace_optional
-        + br"/([!-$&'*-.0-;=?-Z\\^-z|~]+)(?="
+        + rb"/([!-$&'*-.0-;=?-Z\\^-z|~]+)(?="
         + delimiter_or_ws
-        + br")"
+        + rb")"
     )
-    re_dict_start = re.compile(whitespace_optional + br"\<\<")
-    re_dict_end = re.compile(whitespace_optional + br"\>\>" + whitespace_optional)
+    re_dict_start = re.compile(whitespace_optional + rb"<<")
+    re_dict_end = re.compile(whitespace_optional + rb">>" + whitespace_optional)
 
     @classmethod
     def interpret_trailer(cls, trailer_data):
@@ -733,7 +688,7 @@ class PdfParser:
         )
         return trailer
 
-    re_hashes_in_name = re.compile(br"([^#]*)(#([0-9a-fA-F]{2}))?")
+    re_hashes_in_name = re.compile(rb"([^#]*)(#([0-9a-fA-F]{2}))?")
 
     @classmethod
     def interpret_name(cls, raw, as_text=False):
@@ -748,53 +703,53 @@ class PdfParser:
         else:
             return bytes(name)
 
-    re_null = re.compile(whitespace_optional + br"null(?=" + delimiter_or_ws + br")")
-    re_true = re.compile(whitespace_optional + br"true(?=" + delimiter_or_ws + br")")
-    re_false = re.compile(whitespace_optional + br"false(?=" + delimiter_or_ws + br")")
+    re_null = re.compile(whitespace_optional + rb"null(?=" + delimiter_or_ws + rb")")
+    re_true = re.compile(whitespace_optional + rb"true(?=" + delimiter_or_ws + rb")")
+    re_false = re.compile(whitespace_optional + rb"false(?=" + delimiter_or_ws + rb")")
     re_int = re.compile(
-        whitespace_optional + br"([-+]?[0-9]+)(?=" + delimiter_or_ws + br")"
+        whitespace_optional + rb"([-+]?[0-9]+)(?=" + delimiter_or_ws + rb")"
     )
     re_real = re.compile(
         whitespace_optional
-        + br"([-+]?([0-9]+\.[0-9]*|[0-9]*\.[0-9]+))(?="
+        + rb"([-+]?([0-9]+\.[0-9]*|[0-9]*\.[0-9]+))(?="
         + delimiter_or_ws
-        + br")"
+        + rb")"
     )
-    re_array_start = re.compile(whitespace_optional + br"\[")
-    re_array_end = re.compile(whitespace_optional + br"]")
+    re_array_start = re.compile(whitespace_optional + rb"\[")
+    re_array_end = re.compile(whitespace_optional + rb"]")
     re_string_hex = re.compile(
-        whitespace_optional + br"\<(" + whitespace_or_hex + br"*)\>"
+        whitespace_optional + rb"<(" + whitespace_or_hex + rb"*)>"
     )
-    re_string_lit = re.compile(whitespace_optional + br"\(")
+    re_string_lit = re.compile(whitespace_optional + rb"\(")
     re_indirect_reference = re.compile(
         whitespace_optional
-        + br"([-+]?[0-9]+)"
+        + rb"([-+]?[0-9]+)"
         + whitespace_mandatory
-        + br"([-+]?[0-9]+)"
+        + rb"([-+]?[0-9]+)"
         + whitespace_mandatory
-        + br"R(?="
+        + rb"R(?="
         + delimiter_or_ws
-        + br")"
+        + rb")"
     )
     re_indirect_def_start = re.compile(
         whitespace_optional
-        + br"([-+]?[0-9]+)"
+        + rb"([-+]?[0-9]+)"
         + whitespace_mandatory
-        + br"([-+]?[0-9]+)"
+        + rb"([-+]?[0-9]+)"
         + whitespace_mandatory
-        + br"obj(?="
+        + rb"obj(?="
         + delimiter_or_ws
-        + br")"
+        + rb")"
     )
     re_indirect_def_end = re.compile(
-        whitespace_optional + br"endobj(?=" + delimiter_or_ws + br")"
+        whitespace_optional + rb"endobj(?=" + delimiter_or_ws + rb")"
     )
     re_comment = re.compile(
-        br"(" + whitespace_optional + br"%[^\r\n]*" + newline + br")*"
+        rb"(" + whitespace_optional + rb"%[^\r\n]*" + newline + rb")*"
     )
-    re_stream_start = re.compile(whitespace_optional + br"stream\r?\n")
+    re_stream_start = re.compile(whitespace_optional + rb"stream\r?\n")
     re_stream_end = re.compile(
-        whitespace_optional + br"endstream(?=" + delimiter_or_ws + br")"
+        whitespace_optional + rb"endstream(?=" + delimiter_or_ws + rb")"
     )
 
     @classmethod
@@ -859,11 +814,11 @@ class PdfParser:
             if m:
                 try:
                     stream_len = int(result[b"Length"])
-                except (TypeError, KeyError, ValueError):
-                    raise PdfFormatError(
-                        "bad or missing Length in stream dict (%r)"
-                        % result.get(b"Length", None)
+                except (TypeError, KeyError, ValueError) as e:
+                    msg = "bad or missing Length in stream dict (%r)" % result.get(
+                        b"Length", None
                     )
+                    raise PdfFormatError(msg) from e
                 stream_data = data[m.end() : m.end() + stream_len]
                 m = cls.re_stream_end.match(data, m.end() + stream_len)
                 check_format_condition(m, "stream end not found")
@@ -907,7 +862,7 @@ class PdfParser:
         if m:
             # filter out whitespace
             hex_string = bytearray(
-                [b for b in m.group(1) if b in b"0123456789abcdefABCDEF"]
+                b for b in m.group(1) if b in b"0123456789abcdefABCDEF"
             )
             if len(hex_string) % 2 == 1:
                 # append a 0 if the length is not even - yes, at the end
@@ -917,10 +872,11 @@ class PdfParser:
         if m:
             return cls.get_literal_string(data, m.end())
         # return None, offset  # fallback (only for debugging)
-        raise PdfFormatError("unrecognized object: " + repr(data[offset : offset + 32]))
+        msg = "unrecognized object: " + repr(data[offset : offset + 32])
+        raise PdfFormatError(msg)
 
     re_lit_str_token = re.compile(
-        br"(\\[nrtbf()\\])|(\\[0-9]{1,3})|(\\(\r\n|\r|\n))|(\r\n|\r|\n)|(\()|(\))"
+        rb"(\\[nrtbf()\\])|(\\[0-9]{1,3})|(\\(\r\n|\r|\n))|(\r\n|\r|\n)|(\()|(\))"
     )
     escaped_chars = {
         b"n": b"\n",
@@ -964,18 +920,19 @@ class PdfParser:
                 result.extend(b")")
                 nesting_depth -= 1
             offset = m.end()
-        raise PdfFormatError("unfinished literal string")
+        msg = "unfinished literal string"
+        raise PdfFormatError(msg)
 
-    re_xref_section_start = re.compile(whitespace_optional + br"xref" + newline)
+    re_xref_section_start = re.compile(whitespace_optional + rb"xref" + newline)
     re_xref_subsection_start = re.compile(
         whitespace_optional
-        + br"([0-9]+)"
+        + rb"([0-9]+)"
         + whitespace_mandatory
-        + br"([0-9]+)"
+        + rb"([0-9]+)"
         + whitespace_optional
         + newline_only
     )
-    re_xref_entry = re.compile(br"([0-9]{10}) ([0-9]{5}) ([fn])( \r| \n|\r\n)")
+    re_xref_entry = re.compile(rb"([0-9]{10}) ([0-9]{5}) ([fn])( \r| \n|\r\n)")
 
     def read_xref_table(self, xref_section_offset):
         subsection_found = False
@@ -1014,9 +971,8 @@ class PdfParser:
         offset, generation = self.xref_table[ref[0]]
         check_format_condition(
             generation == ref[1],
-            "expected to find generation %s for object ID %s in xref table, "
-            "instead found generation %s at offset %s"
-            % (ref[1], ref[0], generation, offset),
+            f"expected to find generation {ref[1]} for object ID {ref[0]} in xref "
+            f"table, instead found generation {generation} at offset {offset}",
         )
         value = self.get_value(
             self.buf,

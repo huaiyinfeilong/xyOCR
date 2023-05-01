@@ -16,7 +16,7 @@
 ##
 
 
-class Iterator(object):
+class Iterator:
     """
     This class implements an iterator object that can be used to loop
     over an image sequence.
@@ -30,7 +30,8 @@ class Iterator(object):
 
     def __init__(self, im):
         if not hasattr(im, "seek"):
-            raise AttributeError("im must have seek method")
+            msg = "im must have seek method"
+            raise AttributeError(msg)
         self.im = im
         self.position = getattr(self.im, "_min_frame", 0)
 
@@ -38,8 +39,8 @@ class Iterator(object):
         try:
             self.im.seek(ix)
             return self.im
-        except EOFError:
-            raise IndexError  # end of sequence
+        except EOFError as e:
+            raise IndexError from e  # end of sequence
 
     def __iter__(self):
         return self
@@ -49,11 +50,8 @@ class Iterator(object):
             self.im.seek(self.position)
             self.position += 1
             return self.im
-        except EOFError:
-            raise StopIteration
-
-    def next(self):
-        return self.__next__()
+        except EOFError as e:
+            raise StopIteration from e
 
 
 def all_frames(im, func=None):

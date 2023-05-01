@@ -38,9 +38,7 @@ def duplicate(image):
 
 def invert(image):
     """
-    Invert an image (channel).
-
-    .. code-block:: python
+    Invert an image (channel). ::
 
         out = MAX - image
 
@@ -54,9 +52,7 @@ def invert(image):
 def lighter(image1, image2):
     """
     Compares the two images, pixel by pixel, and returns a new image containing
-    the lighter values. At least one of the images must have mode "1".
-
-    .. code-block:: python
+    the lighter values. ::
 
         out = max(image1, image2)
 
@@ -71,9 +67,7 @@ def lighter(image1, image2):
 def darker(image1, image2):
     """
     Compares the two images, pixel by pixel, and returns a new image containing
-    the darker values. At least one of the images must have mode "1".
-
-    .. code-block:: python
+    the darker values. ::
 
         out = min(image1, image2)
 
@@ -88,9 +82,7 @@ def darker(image1, image2):
 def difference(image1, image2):
     """
     Returns the absolute value of the pixel-by-pixel difference between the two
-    images. At least one of the images must have mode "1".
-
-    .. code-block:: python
+    images. ::
 
         out = abs(image1 - image2)
 
@@ -107,10 +99,7 @@ def multiply(image1, image2):
     Superimposes two images on top of each other.
 
     If you multiply an image with a solid black image, the result is black. If
-    you multiply with a solid white image, the image is unaffected. At least
-    one of the images must have mode "1".
-
-    .. code-block:: python
+    you multiply with a solid white image, the image is unaffected. ::
 
         out = image1 * image2 / MAX
 
@@ -124,10 +113,7 @@ def multiply(image1, image2):
 
 def screen(image1, image2):
     """
-    Superimposes two inverted images on top of each other. At least one of the
-    images must have mode "1".
-
-    .. code-block:: python
+    Superimposes two inverted images on top of each other. ::
 
         out = MAX - ((MAX - image1) * (MAX - image2) / MAX)
 
@@ -139,13 +125,46 @@ def screen(image1, image2):
     return image1._new(image1.im.chop_screen(image2.im))
 
 
+def soft_light(image1, image2):
+    """
+    Superimposes two images on top of each other using the Soft Light algorithm
+
+    :rtype: :py:class:`~PIL.Image.Image`
+    """
+
+    image1.load()
+    image2.load()
+    return image1._new(image1.im.chop_soft_light(image2.im))
+
+
+def hard_light(image1, image2):
+    """
+    Superimposes two images on top of each other using the Hard Light algorithm
+
+    :rtype: :py:class:`~PIL.Image.Image`
+    """
+
+    image1.load()
+    image2.load()
+    return image1._new(image1.im.chop_hard_light(image2.im))
+
+
+def overlay(image1, image2):
+    """
+    Superimposes two images on top of each other using the Overlay algorithm
+
+    :rtype: :py:class:`~PIL.Image.Image`
+    """
+
+    image1.load()
+    image2.load()
+    return image1._new(image1.im.chop_overlay(image2.im))
+
+
 def add(image1, image2, scale=1.0, offset=0):
     """
     Adds two images, dividing the result by scale and adding the
-    offset. If omitted, scale defaults to 1.0, and offset to 0.0.
-    At least one of the images must have mode "1".
-
-    .. code-block:: python
+    offset. If omitted, scale defaults to 1.0, and offset to 0.0. ::
 
         out = ((image1 + image2) / scale + offset)
 
@@ -160,10 +179,7 @@ def add(image1, image2, scale=1.0, offset=0):
 def subtract(image1, image2, scale=1.0, offset=0):
     """
     Subtracts two images, dividing the result by scale and adding the offset.
-    If omitted, scale defaults to 1.0, and offset to 0.0. At least one of the
-    images must have mode "1".
-
-    .. code-block:: python
+    If omitted, scale defaults to 1.0, and offset to 0.0. ::
 
         out = ((image1 - image2) / scale + offset)
 
@@ -176,10 +192,7 @@ def subtract(image1, image2, scale=1.0, offset=0):
 
 
 def add_modulo(image1, image2):
-    """Add two images, without clipping the result. At least one of the images
-    must have mode "1".
-
-    .. code-block:: python
+    """Add two images, without clipping the result. ::
 
         out = ((image1 + image2) % MAX)
 
@@ -192,10 +205,7 @@ def add_modulo(image1, image2):
 
 
 def subtract_modulo(image1, image2):
-    """Subtract two images, without clipping the result. At least one of the
-    images must have mode "1".
-
-    .. code-block:: python
+    """Subtract two images, without clipping the result. ::
 
         out = ((image1 - image2) % MAX)
 
@@ -208,10 +218,12 @@ def subtract_modulo(image1, image2):
 
 
 def logical_and(image1, image2):
-    """Logical AND between two images. At least one of the images must have
-    mode "1".
+    """Logical AND between two images.
 
-    .. code-block:: python
+    Both of the images must have mode "1". If you would like to perform a
+    logical AND on an image with a mode other than "1", try
+    :py:meth:`~PIL.ImageChops.multiply` instead, using a black-and-white mask
+    as the second image. ::
 
         out = ((image1 and image2) % MAX)
 
@@ -224,10 +236,9 @@ def logical_and(image1, image2):
 
 
 def logical_or(image1, image2):
-    """Logical OR between two images. At least one of the images must have
-    mode "1".
+    """Logical OR between two images.
 
-    .. code-block:: python
+    Both of the images must have mode "1". ::
 
         out = ((image1 or image2) % MAX)
 
@@ -240,10 +251,9 @@ def logical_or(image1, image2):
 
 
 def logical_xor(image1, image2):
-    """Logical XOR between two images. At least one of the images must have
-    mode "1".
+    """Logical XOR between two images.
 
-    .. code-block:: python
+    Both of the images must have mode "1". ::
 
         out = ((bool(image1) != bool(image2)) % MAX)
 
@@ -257,7 +267,7 @@ def logical_xor(image1, image2):
 
 def blend(image1, image2, alpha):
     """Blend images using constant transparency weight. Alias for
-    :py:meth:`PIL.Image.Image.blend`.
+    :py:func:`PIL.Image.blend`.
 
     :rtype: :py:class:`~PIL.Image.Image`
     """
@@ -267,7 +277,7 @@ def blend(image1, image2, alpha):
 
 def composite(image1, image2, mask):
     """Create composite using transparency mask. Alias for
-    :py:meth:`PIL.Image.Image.composite`.
+    :py:func:`PIL.Image.composite`.
 
     :rtype: :py:class:`~PIL.Image.Image`
     """
@@ -277,9 +287,10 @@ def composite(image1, image2, mask):
 
 def offset(image, xoffset, yoffset=None):
     """Returns a copy of the image where data has been offset by the given
-    distances. Data wraps around the edges. If **yoffset** is omitted, it
-    is assumed to be equal to **xoffset**.
+    distances. Data wraps around the edges. If ``yoffset`` is omitted, it
+    is assumed to be equal to ``xoffset``.
 
+    :param image: Input image.
     :param xoffset: The horizontal distance.
     :param yoffset: The vertical distance.  If omitted, both
         distances are set to the same value.

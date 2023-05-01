@@ -11,26 +11,19 @@
 # See the README file for information on usage and redistribution.
 #
 
+
+"""Binary input/output support routines."""
+
+
 from struct import pack, unpack_from
 
-from ._util import py3
 
-if py3:
-
-    def i8(c):
-        return c if c.__class__ is int else c[0]
-
-    def o8(i):
-        return bytes((i & 255,))
+def i8(c):
+    return c if c.__class__ is int else c[0]
 
 
-else:
-
-    def i8(c):
-        return ord(c)
-
-    def o8(i):
-        return chr(i & 255)
+def o8(i):
+    return bytes((i & 255,))
 
 
 # Input, le = little endian, be = big endian
@@ -52,6 +45,16 @@ def si16le(c, o=0):
     :param o: offset of bytes to convert in string
     """
     return unpack_from("<h", c, o)[0]
+
+
+def si16be(c, o=0):
+    """
+    Converts a 2-bytes (16 bits) string to a signed integer, big endian.
+
+    :param c: string containing bytes to convert
+    :param o: offset of bytes to convert in string
+    """
+    return unpack_from(">h", c, o)[0]
 
 
 def i32le(c, o=0):

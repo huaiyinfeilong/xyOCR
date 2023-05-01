@@ -1,5 +1,3 @@
-import addonHandler
-addonHandler.initTranslation()
 # coding=utf-8
 
 from ctypes import (
@@ -54,21 +52,3 @@ def is64ProcessorArchitecture():
 	GetNativeSystemInfo = windll.kernel32.GetNativeSystemInfo
 	GetNativeSystemInfo(byref(sysInfo))
 	return sysInfo.wProcessorArchitecture == ProcessorArchitecture.PROCESSOR_ARCHITECTURE_AMD64
-
-
-def onInstall():
-	if is64ProcessorArchitecture():
-		return
-	import gui
-	import wx
-	import globalVars
-	# Translators: title of the error dialog shown when trying to install the add-on in unsupported systems.
-	unsupportedArchitectureTitle = _("Unable to complete installation")
-	unsupportedArchitectureText = _(
-		# Translators: Dialog text shown when trying to install the add-on on an unsupported processor architecture.
-		"This addon can only run on 64-bit systems, but you are currently using a 32-bit system, so the installation cannot be completed."
-	)
-	# Do not present error dialog if minimal mode is set.
-	if not globalVars.appArgs.minimal:
-		gui.messageBox(unsupportedArchitectureText, unsupportedArchitectureTitle, wx.OK | wx.ICON_ERROR)
-	raise RuntimeError(f"xyOCR does not support {currentWinVer})")

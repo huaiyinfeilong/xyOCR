@@ -21,18 +21,14 @@
 # Figure 205. Windows Paint Version 1: "DanM" Format
 # Figure 206. Windows Paint Version 2: "LinS" Format. Used in Windows V2.03
 #
-# See also: http://www.fileformat.info/format/mspaint/egff.htm
+# See also: https://www.fileformat.info/format/mspaint/egff.htm
 
 import io
 import struct
 
 from . import Image, ImageFile
-from ._binary import i8, i16le as i16, o16le as o16
-
-# __version__ is deprecated and will be removed in a future version. Use
-# PIL.__version__ instead.
-__version__ = "0.1"
-
+from ._binary import i16le as i16
+from ._binary import o16le as o16
 
 #
 # read MSP files
@@ -48,26 +44,26 @@ def _accept(prefix):
 
 
 class MspImageFile(ImageFile.ImageFile):
-
     format = "MSP"
     format_description = "Windows Paint"
 
     def _open(self):
-
         # Header
         s = self.fp.read(32)
-        if s[:4] not in [b"DanM", b"LinS"]:
-            raise SyntaxError("not an MSP file")
+        if not _accept(s):
+            msg = "not an MSP file"
+            raise SyntaxError(msg)
 
         # Header checksum
         checksum = 0
         for i in range(0, 32, 2):
-            checksum = checksum ^ i16(s[i : i + 2])
+            checksum = checksum ^ i16(s, i)
         if checksum != 0:
-            raise SyntaxError("bad MSP checksum")
+            msg = "bad MSP checksum"
+            raise SyntaxError(msg)
 
         self.mode = "1"
-        self._size = i16(s[4:]), i16(s[6:])
+        self._size = i16(s, 4), i16(s, 6)
 
         if s[:4] == b"DanM":
             self.tile = [("raw", (0, 0) + self.size, 32, ("1", 0, 1))]
@@ -77,7 +73,7 @@ class MspImageFile(ImageFile.ImageFile):
 
 class MspDecoder(ImageFile.PyDecoder):
     # The algo for the MSP decoder is from
-    # http://www.fileformat.info/format/mspaint/egff.htm
+    # https://www.fileformat.info/format/mspaint/egff.htm
     # cc-by-attribution -- That page references is taken from the
     # Encyclopedia of Graphics File Formats and is licensed by
     # O'Reilly under the Creative Common/Attribution license
@@ -113,16 +109,16 @@ class MspDecoder(ImageFile.PyDecoder):
     _pulls_fd = True
 
     def decode(self, buffer):
-
         img = io.BytesIO()
         blank_line = bytearray((0xFF,) * ((self.state.xsize + 7) // 8))
         try:
             self.fd.seek(32)
             rowmap = struct.unpack_from(
-                "<%dH" % (self.state.ysize), self.fd.read(self.state.ysize * 2)
+                f"<{self.state.ysize}H", self.fd.read(self.state.ysize * 2)
             )
-        except struct.error:
-            raise IOError("Truncated MSP file in row map")
+        except struct.error as e:
+            msg = "Truncated MSP file in row map"
+            raise OSError(msg) from e
 
         for x, rowlen in enumerate(rowmap):
             try:
@@ -131,12 +127,11 @@ class MspDecoder(ImageFile.PyDecoder):
                     continue
                 row = self.fd.read(rowlen)
                 if len(row) != rowlen:
-                    raise IOError(
-                        "Truncated MSP file, expected %d bytes on row %s", (rowlen, x)
-                    )
+                    msg = f"Truncated MSP file, expected {rowlen} bytes on row {x}"
+                    raise OSError(msg)
                 idx = 0
                 while idx < rowlen:
-                    runtype = i8(row[idx])
+                    runtype = row[idx]
                     idx += 1
                     if runtype == 0:
                         (runcount, runval) = struct.unpack_from("Bc", row, idx)
@@ -147,12 +142,13 @@ class MspDecoder(ImageFile.PyDecoder):
                         img.write(row[idx : idx + runcount])
                         idx += runcount
 
-            except struct.error:
-                raise IOError("Corrupted MSP file in row %d" % x)
+            except struct.error as e:
+                msg = f"Corrupted MSP file in row {x}"
+                raise OSError(msg) from e
 
         self.set_as_raw(img.getvalue(), ("1", 0, 1))
 
-        return 0, 0
+        return -1, 0
 
 
 Image.register_decoder("MSP", MspDecoder)
@@ -163,9 +159,9 @@ Image.register_decoder("MSP", MspDecoder)
 
 
 def _save(im, fp, filename):
-
     if im.mode != "1":
-        raise IOError("cannot write mode %s as MSP" % im.mode)
+        msg = f"cannot write mode {im.mode} as MSP"
+        raise OSError(msg)
 
     # create MSP header
     header = [0] * 16

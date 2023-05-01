@@ -13,17 +13,19 @@
 # See the README file for information on usage and redistribution.
 #
 
+"""
+Stuff to translate curve segments to palette values (derived from
+the corresponding code in GIMP, written by Federico Mena Quintero.
+See the GIMP distribution for more information.)
+"""
+
+
 from math import log, pi, sin, sqrt
 
 from ._binary import o8
 
-# --------------------------------------------------------------------
-# Stuff to translate curve segments to palette values (derived from
-# the corresponding code in GIMP, written by Federico Mena Quintero.
-# See the GIMP distribution for more information.)
-#
-
 EPSILON = 1e-10
+""""""  # Enable auto-doc for data member
 
 
 def linear(middle, pos):
@@ -58,22 +60,20 @@ def sphere_decreasing(middle, pos):
 
 
 SEGMENTS = [linear, curved, sine, sphere_increasing, sphere_decreasing]
+""""""  # Enable auto-doc for data member
 
 
-class GradientFile(object):
-
+class GradientFile:
     gradient = None
 
     def getpalette(self, entries=256):
-
         palette = []
 
         ix = 0
         x0, x1, xm, rgb0, rgb1, segment = self.gradient[ix]
 
         for i in range(entries):
-
-            x = i / float(entries - 1)
+            x = i / (entries - 1)
 
             while x1 < x:
                 ix += 1
@@ -98,15 +98,13 @@ class GradientFile(object):
         return b"".join(palette), "RGBA"
 
 
-##
-# File handler for GIMP's gradient format.
-
-
 class GimpGradientFile(GradientFile):
-    def __init__(self, fp):
+    """File handler for GIMP's gradient format."""
 
+    def __init__(self, fp):
         if fp.readline()[:13] != b"GIMP Gradient":
-            raise SyntaxError("not a GIMP gradient file")
+            msg = "not a GIMP gradient file"
+            raise SyntaxError(msg)
 
         line = fp.readline()
 
@@ -119,7 +117,6 @@ class GimpGradientFile(GradientFile):
         gradient = []
 
         for i in range(count):
-
             s = fp.readline().split()
             w = [float(x) for x in s[:11]]
 
@@ -132,7 +129,8 @@ class GimpGradientFile(GradientFile):
             cspace = int(s[12])
 
             if cspace != 0:
-                raise IOError("cannot handle HSV colour space")
+                msg = "cannot handle HSV colour space"
+                raise OSError(msg)
 
             gradient.append((x0, x1, xm, rgb0, rgb1, segment))
 

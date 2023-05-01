@@ -18,11 +18,7 @@
 #
 
 from . import Image, ImageFile, ImagePalette
-from ._binary import i8, o8
-
-# __version__ is deprecated and will be removed in a future version. Use
-# PIL.__version__ instead.
-__version__ = "0.1"
+from ._binary import o8
 
 _MAGIC = b"P7 332"
 
@@ -45,15 +41,14 @@ def _accept(prefix):
 
 
 class XVThumbImageFile(ImageFile.ImageFile):
-
     format = "XVThumb"
     format_description = "XV thumbnail image"
 
     def _open(self):
-
         # check magic
         if not _accept(self.fp.read(6)):
-            raise SyntaxError("not an XV thumbnail file")
+            msg = "not an XV thumbnail file"
+            raise SyntaxError(msg)
 
         # Skip to beginning of next line
         self.fp.readline()
@@ -62,8 +57,9 @@ class XVThumbImageFile(ImageFile.ImageFile):
         while True:
             s = self.fp.readline()
             if not s:
-                raise SyntaxError("Unexpected EOF reading XV thumbnail file")
-            if i8(s[0]) != 35:  # ie. when not a comment: '#'
+                msg = "Unexpected EOF reading XV thumbnail file"
+                raise SyntaxError(msg)
+            if s[0] != 35:  # ie. when not a comment: '#'
                 break
 
         # parse header line (already read)

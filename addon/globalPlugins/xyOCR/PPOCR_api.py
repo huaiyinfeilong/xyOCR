@@ -1,3 +1,5 @@
+# coding=utf-8
+
 # 调用 PaddleOCR-json.exe 的 Python Api
 # 项目主页：
 # https://github.com/hiroi-sora/PaddleOCR-json

@@ -1,15 +1,20 @@
+# coding=utf-8
+
 import os
 import sys
 import threading
 import tempfile
 import ui
 import winKernel
-from contentRecog import ContentRecognizer, LinesWordsResult
+from contentRecog import ContentRecognizer, LinesWordsResult, RecogImageInfo
+import addonHandler
 from .PPOCR_api import PPOCR
 from ctypes import wintypes
 sys.path.append("\\".join(os.path.dirname(__file__).split("\\")[:-1]) + "\\_py3_contrib")
 from PIL import Image
 
+
+addonHandler.initTranslation()
 
 # PaddleOCR-json.exe path
 MODEL_ENGINE = os.path.abspath(
@@ -24,6 +29,8 @@ MODEL_ENGINE = os.path.abspath(
 
 
 class PaddleOcr(ContentRecognizer):
+	# Translators: Offline OCR
+	name = _("Offline OCR")
 	onResult = None
 	ocr = None
 	mutex = None
@@ -122,6 +129,9 @@ class PaddleOcr(ContentRecognizer):
 			return
 		data = res.get("data")
 		result = [item.get("text") for item in data]
+		result = [[{"x": 0, "y": 0, "width": 1, "height": 1, "text": item}] for item in result]
+		image_info = RecogImageInfo(0, 0, 1, 1, 1)
+		result = LinesWordsResult(result, image_info)
 		if self.onResult is not None:
 			self.onResult(result)
 		self.auto_restart()

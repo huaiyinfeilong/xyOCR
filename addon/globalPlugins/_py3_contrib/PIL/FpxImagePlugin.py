@@ -14,22 +14,15 @@
 #
 # See the README file for information on usage and redistribution.
 #
-
-from __future__ import print_function
-
 import olefile
 
 from . import Image, ImageFile
-from ._binary import i8, i32le as i32
-
-# __version__ is deprecated and will be removed in a future version. Use
-# PIL.__version__ instead.
-__version__ = "0.1"
+from ._binary import i32le as i32
 
 # we map from colour field tuples to (mode, rawmode) descriptors
 MODES = {
     # opacity
-    (0x00007FFE): ("A", "L"),
+    (0x00007FFE,): ("A", "L"),
     # monochrome
     (0x00010000,): ("L", "L"),
     (0x00018000, 0x00017FFE): ("RGBA", "LA"),
@@ -55,7 +48,6 @@ def _accept(prefix):
 
 
 class FpxImageFile(ImageFile.ImageFile):
-
     format = "FPX"
     format_description = "FlashPix"
 
@@ -66,11 +58,13 @@ class FpxImageFile(ImageFile.ImageFile):
 
         try:
             self.ole = olefile.OleFileIO(self.fp)
-        except IOError:
-            raise SyntaxError("not an FPX file; invalid OLE file")
+        except OSError as e:
+            msg = "not an FPX file; invalid OLE file"
+            raise SyntaxError(msg) from e
 
         if self.ole.root.clsid != "56616700-C154-11CE-8553-00AA00A1F95B":
-            raise SyntaxError("not an FPX file; bad root CLSID")
+            msg = "not an FPX file; bad root CLSID"
+            raise SyntaxError(msg)
 
         self._open_index(1)
 
@@ -79,7 +73,7 @@ class FpxImageFile(ImageFile.ImageFile):
         # get the Image Contents Property Set
 
         prop = self.ole.getproperties(
-            ["Data Object Store %06d" % index, "\005Image Contents"]
+            [f"Data Object Store {index:06d}", "\005Image Contents"]
         )
 
         # size (highest resolution)
@@ -104,7 +98,11 @@ class FpxImageFile(ImageFile.ImageFile):
         s = prop[0x2000002 | id]
 
         colors = []
-        for i in range(i32(s, 4)):
+        bands = i32(s, 4)
+        if bands > 4:
+            msg = "Invalid number of bands"
+            raise OSError(msg)
+        for i in range(bands):
             # note: for now, we ignore the "uncalibrated" flag
             colors.append(i32(s, 8 + i * 4) & 0x7FFFFFFF)
 
@@ -124,8 +122,8 @@ class FpxImageFile(ImageFile.ImageFile):
         # setup tile descriptors for a given subimage
 
         stream = [
-            "Data Object Store %06d" % index,
-            "Resolution %04d" % subimage,
+            f"Data Object Store {index:06d}",
+            f"Resolution {subimage:04d}",
             "Subimage 0000 Header",
         ]
 
@@ -145,7 +143,8 @@ class FpxImageFile(ImageFile.ImageFile):
         length = i32(s, 32)
 
         if size != self.size:
-            raise IOError("subimage mismatch")
+            msg = "subimage mismatch"
+            raise OSError(msg)
 
         # get tile descriptors
         fp.seek(28 + offset)
@@ -157,6 +156,8 @@ class FpxImageFile(ImageFile.ImageFile):
         self.tile = []
 
         for i in range(0, len(s), length):
+            x1 = min(xsize, x + xtile)
+            y1 = min(ysize, y + ytile)
 
             compression = i32(s, i + 8)
 
@@ -164,28 +165,26 @@ class FpxImageFile(ImageFile.ImageFile):
                 self.tile.append(
                     (
                         "raw",
-                        (x, y, x + xtile, y + ytile),
+                        (x, y, x1, y1),
                         i32(s, i) + 28,
-                        (self.rawmode),
+                        (self.rawmode,),
                     )
                 )
 
             elif compression == 1:
-
                 # FIXME: the fill decoder is not implemented
                 self.tile.append(
                     (
                         "fill",
-                        (x, y, x + xtile, y + ytile),
+                        (x, y, x1, y1),
                         i32(s, i) + 28,
                         (self.rawmode, s[12:16]),
                     )
                 )
 
             elif compression == 2:
-
-                internal_color_conversion = i8(s[14])
-                jpeg_tables = i8(s[15])
+                internal_color_conversion = s[14]
+                jpeg_tables = s[15]
                 rawmode = self.rawmode
 
                 if internal_color_conversion:
@@ -205,7 +204,7 @@ class FpxImageFile(ImageFile.ImageFile):
                 self.tile.append(
                     (
                         "jpeg",
-                        (x, y, x + xtile, y + ytile),
+                        (x, y, x1, y1),
                         i32(s, i) + 28,
                         (rawmode, jpegmode),
                     )
@@ -218,7 +217,8 @@ class FpxImageFile(ImageFile.ImageFile):
                     self.tile_prefix = self.jpeg[jpeg_tables]
 
             else:
-                raise IOError("unknown/invalid compression")
+                msg = "unknown/invalid compression"
+                raise OSError(msg)
 
             x = x + xtile
             if x >= xsize:
@@ -230,11 +230,18 @@ class FpxImageFile(ImageFile.ImageFile):
         self.fp = None
 
     def load(self):
-
         if not self.fp:
             self.fp = self.ole.openstream(self.stream[:2] + ["Subimage 0000 Data"])
 
         return ImageFile.ImageFile.load(self)
+
+    def close(self):
+        self.ole.close()
+        super().close()
+
+    def __exit__(self, *args):
+        self.ole.close()
+        super().__exit__()
 
 
 #

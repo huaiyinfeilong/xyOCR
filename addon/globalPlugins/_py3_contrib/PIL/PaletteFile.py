@@ -15,28 +15,25 @@
 
 from ._binary import o8
 
-##
-# File handler for Teragon-style palette files.
 
-
-class PaletteFile(object):
+class PaletteFile:
+    """File handler for Teragon-style palette files."""
 
     rawmode = "RGB"
 
     def __init__(self, fp):
-
         self.palette = [(i, i, i) for i in range(256)]
 
         while True:
-
             s = fp.readline()
 
             if not s:
                 break
-            if s[0:1] == b"#":
+            if s[:1] == b"#":
                 continue
             if len(s) > 100:
-                raise SyntaxError("bad palette file")
+                msg = "bad palette file"
+                raise SyntaxError(msg)
 
             v = [int(x) for x in s.split()]
             try:
@@ -51,5 +48,4 @@ class PaletteFile(object):
         self.palette = b"".join(self.palette)
 
     def getpalette(self):
-
         return self.palette, self.rawmode

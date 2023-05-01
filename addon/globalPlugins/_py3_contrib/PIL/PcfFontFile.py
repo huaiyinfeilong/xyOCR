@@ -19,7 +19,11 @@
 import io
 
 from . import FontFile, Image
-from ._binary import i8, i16be as b16, i16le as l16, i32be as b32, i32le as l32
+from ._binary import i8
+from ._binary import i16be as b16
+from ._binary import i16le as l16
+from ._binary import i32be as b32
+from ._binary import i32le as l32
 
 # --------------------------------------------------------------------
 # declarations
@@ -48,21 +52,20 @@ def sz(s, o):
     return s[o : s.index(b"\0", o)]
 
 
-##
-# Font file plugin for the X11 PCF format.
-
-
 class PcfFontFile(FontFile.FontFile):
+    """Font file plugin for the X11 PCF format."""
 
     name = "name"
 
-    def __init__(self, fp):
+    def __init__(self, fp, charset_encoding="iso8859-1"):
+        self.charset_encoding = charset_encoding
 
         magic = l32(fp.read(4))
         if magic != PCF_MAGIC:
-            raise SyntaxError("not a PCF file")
+            msg = "not a PCF file"
+            raise SyntaxError(msg)
 
-        FontFile.FontFile.__init__(self)
+        super().__init__()
 
         count = l32(fp.read(4))
         self.toc = {}
@@ -81,15 +84,26 @@ class PcfFontFile(FontFile.FontFile):
         #
         # create glyph structure
 
-        for ch in range(256):
-            ix = encoding[ch]
+        for ch, ix in enumerate(encoding):
             if ix is not None:
-                x, y, l, r, w, a, d, f = metrics[ix]
-                glyph = (w, 0), (l, d - y, x + l, d), (0, 0, x, y), bitmaps[ix]
-                self.glyph[ch] = glyph
+                (
+                    xsize,
+                    ysize,
+                    left,
+                    right,
+                    width,
+                    ascent,
+                    descent,
+                    attributes,
+                ) = metrics[ix]
+                self.glyph[ch] = (
+                    (width, 0),
+                    (left, descent - ysize, xsize + left, descent),
+                    (0, 0, xsize, ysize),
+                    bitmaps[ix],
+                )
 
     def _getformat(self, tag):
-
         format, size, offset = self.toc[tag]
 
         fp = self.fp
@@ -105,7 +119,6 @@ class PcfFontFile(FontFile.FontFile):
         return fp, format, i16, i32
 
     def _load_properties(self):
-
         #
         # font properties
 
@@ -133,7 +146,6 @@ class PcfFontFile(FontFile.FontFile):
         return properties
 
     def _load_metrics(self):
-
         #
         # font metrics
 
@@ -144,7 +156,6 @@ class PcfFontFile(FontFile.FontFile):
         append = metrics.append
 
         if (format & 0xFF00) == 0x100:
-
             # "compressed" metrics
             for i in range(i16(fp.read(2))):
                 left = i8(fp.read(1)) - 128
@@ -157,7 +168,6 @@ class PcfFontFile(FontFile.FontFile):
                 append((xsize, ysize, left, right, width, ascent, descent, 0))
 
         else:
-
             # "jumbo" metrics
             for i in range(i32(fp.read(4))):
                 left = i16(fp.read(2))
@@ -173,7 +183,6 @@ class PcfFontFile(FontFile.FontFile):
         return metrics
 
     def _load_bitmaps(self, metrics):
-
         #
         # bitmap data
 
@@ -184,21 +193,22 @@ class PcfFontFile(FontFile.FontFile):
         nbitmaps = i32(fp.read(4))
 
         if nbitmaps != len(metrics):
-            raise IOError("Wrong number of bitmaps")
+            msg = "Wrong number of bitmaps"
+            raise OSError(msg)
 
         offsets = []
         for i in range(nbitmaps):
             offsets.append(i32(fp.read(4)))
 
-        bitmapSizes = []
+        bitmap_sizes = []
         for i in range(4):
-            bitmapSizes.append(i32(fp.read(4)))
+            bitmap_sizes.append(i32(fp.read(4)))
 
         # byteorder = format & 4  # non-zero => MSB
         bitorder = format & 8  # non-zero => MSB
         padindex = format & 3
 
-        bitmapsize = bitmapSizes[padindex]
+        bitmapsize = bitmap_sizes[padindex]
         offsets.append(bitmapsize)
 
         data = fp.read(bitmapsize)
@@ -209,32 +219,38 @@ class PcfFontFile(FontFile.FontFile):
             mode = "1"
 
         for i in range(nbitmaps):
-            x, y, l, r, w, a, d, f = metrics[i]
-            b, e = offsets[i], offsets[i + 1]
-            bitmaps.append(Image.frombytes("1", (x, y), data[b:e], "raw", mode, pad(x)))
+            xsize, ysize = metrics[i][:2]
+            b, e = offsets[i : i + 2]
+            bitmaps.append(
+                Image.frombytes("1", (xsize, ysize), data[b:e], "raw", mode, pad(xsize))
+            )
 
         return bitmaps
 
     def _load_encoding(self):
-
-        # map character code to bitmap index
-        encoding = [None] * 256
-
         fp, format, i16, i32 = self._getformat(PCF_BDF_ENCODINGS)
 
-        firstCol, lastCol = i16(fp.read(2)), i16(fp.read(2))
-        firstRow, lastRow = i16(fp.read(2)), i16(fp.read(2))
+        first_col, last_col = i16(fp.read(2)), i16(fp.read(2))
+        first_row, last_row = i16(fp.read(2)), i16(fp.read(2))
 
         i16(fp.read(2))  # default
 
-        nencoding = (lastCol - firstCol + 1) * (lastRow - firstRow + 1)
+        nencoding = (last_col - first_col + 1) * (last_row - first_row + 1)
 
-        for i in range(nencoding):
-            encodingOffset = i16(fp.read(2))
-            if encodingOffset != 0xFFFF:
-                try:
-                    encoding[i + firstCol] = encodingOffset
-                except IndexError:
-                    break  # only load ISO-8859-1 glyphs
+        # map character code to bitmap index
+        encoding = [None] * min(256, nencoding)
+
+        encoding_offsets = [i16(fp.read(2)) for _ in range(nencoding)]
+
+        for i in range(first_col, len(encoding)):
+            try:
+                encoding_offset = encoding_offsets[
+                    ord(bytearray([i]).decode(self.charset_encoding))
+                ]
+                if encoding_offset != 0xFFFF:
+                    encoding[i] = encoding_offset
+            except UnicodeDecodeError:
+                # character is not supported in selected encoding
+                pass
 
         return encoding

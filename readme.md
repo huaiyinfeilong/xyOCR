@@ -1,19 +1,20 @@
 # Xinyi OCR
 
-This is an NVDA OCR recognition add-on developed based on the PaddleOCR_json offline OCR component.
+This is an NVDA addon that provides offline and online OCR recognition. Offline recognition is developed based on the PaddleOCR_json component.
 
-This add-on is currently only connected to the local OCR recognition engine of PaddleOCR_json, and the PaddleOCR_json component will be automatically installed after the add-on is installed. In the future, other offline and online OCR recognition engines will be gradually connected.
+This add-on currently provides PaddleOCR_json's offline OCR recognition engine and the online Baidu general version and accurate version of the recognition engine. After installing the add-on, the PaddleOCR_json component will be automatically installed. More other offline and online OCR recognition engines will be gradually connected in the future.
 
 ## Addon Advantages
 
-* The recognition speed is fast, about 100ms, and the actual situation varies with the performance configuration of the computer.
-* Strong recognition accuracy, comparable to online recognition.
+* The recognition speed is fast, and the offline recognition is about 100ms. The actual situation varies with the performance configuration of the computer.
+* Powerful offline recognition accuracy, comparable to online recognition.
 * The coordinates of the recognition result text are accurate, and the click response of the result text is accurate.
 
 ## Keyboard Shortcuts
 
 * Navigation object recognition: NVDA+ALT+O
 * Clipboard recognition: NVDA+ALT+SHIFT+O
+* Switch recognition engine: NVDA+ALT+9
 
 Shortcut key settings: You can set shortcut keys for each command under the "Xinyi OCR" category in the "Keys and Gestures" setting.
 
@@ -27,6 +28,12 @@ Any comments and suggestions are welcome to communicate:
 * WeChat: huaiyinfeilong
 
 ## Upgrade log
+
+### Version 2.0
+
+* Added Baidu online OCR recognition engine, supports general recognition and accurate version recognition, and can use shared key and own private key. If you use your own private key, you need to configure it in the settings.
+* Added screen curtain detection function, if OCR recognition is performed when the screen curtain is turned on, a prompt will be given.
+* Remove the 64-bit system detection during installation, but after the non-64-bit system is installed, only online OCR recognition can be used and offline recognition cannot be used.
 
 ### Version 1.3
 

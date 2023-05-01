@@ -17,16 +17,11 @@
 from . import Image, ImageFile
 from ._binary import i8
 
-# __version__ is deprecated and will be removed in a future version. Use
-# PIL.__version__ instead.
-__version__ = "0.1"
-
-
 #
 # Bitstream parser
 
 
-class BitStream(object):
+class BitStream:
     def __init__(self, fp):
         self.fp = fp
         self.bits = 0
@@ -63,16 +58,15 @@ class BitStream(object):
 
 
 class MpegImageFile(ImageFile.ImageFile):
-
     format = "MPEG"
     format_description = "MPEG"
 
     def _open(self):
-
         s = BitStream(self.fp)
 
         if s.read(32) != 0x1B3:
-            raise SyntaxError("not an MPEG file")
+            msg = "not an MPEG file"
+            raise SyntaxError(msg)
 
         self.mode = "RGB"
         self._size = s.read(12), s.read(12)

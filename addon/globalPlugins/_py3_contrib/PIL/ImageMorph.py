@@ -5,8 +5,6 @@
 #
 # Copyright (c) 2014 Dov Grobgeld <dov.grobgeld@gmail.com>
 
-from __future__ import print_function
-
 import re
 
 from . import Image, _imagingmorph
@@ -27,39 +25,39 @@ MIRROR_MATRIX = [
 # fmt: on
 
 
-class LutBuilder(object):
+class LutBuilder:
     """A class for building a MorphLut from a descriptive language
 
-      The input patterns is a list of a strings sequences like these::
+    The input patterns is a list of a strings sequences like these::
 
-          4:(...
-             .1.
-             111)->1
+        4:(...
+           .1.
+           111)->1
 
-      (whitespaces including linebreaks are ignored). The option 4
-      describes a series of symmetry operations (in this case a
-      4-rotation), the pattern is described by:
+    (whitespaces including linebreaks are ignored). The option 4
+    describes a series of symmetry operations (in this case a
+    4-rotation), the pattern is described by:
 
-      - . or X - Ignore
-      - 1 - Pixel is on
-      - 0 - Pixel is off
+    - . or X - Ignore
+    - 1 - Pixel is on
+    - 0 - Pixel is off
 
-      The result of the operation is described after "->" string.
+    The result of the operation is described after "->" string.
 
-      The default is to return the current pixel value, which is
-      returned if no other match is found.
+    The default is to return the current pixel value, which is
+    returned if no other match is found.
 
-      Operations:
+    Operations:
 
-      - 4 - 4 way rotation
-      - N - Negate
-      - 1 - Dummy op for no other operation (an op must always be given)
-      - M - Mirroring
+    - 4 - 4 way rotation
+    - N - Negate
+    - 1 - Dummy op for no other operation (an op must always be given)
+    - M - Mirroring
 
-      Example::
+    Example::
 
-          lb = LutBuilder(patterns = ["4:(... .1. 111)->1"])
-          lut = lb.build_lut()
+        lb = LutBuilder(patterns = ["4:(... .1. 111)->1"])
+        lut = lb.build_lut()
 
     """
 
@@ -83,7 +81,8 @@ class LutBuilder(object):
                 ],
             }
             if op_name not in known_patterns:
-                raise Exception("Unknown pattern " + op_name + "!")
+                msg = "Unknown pattern " + op_name + "!"
+                raise Exception(msg)
 
             self.patterns = known_patterns[op_name]
 
@@ -121,13 +120,13 @@ class LutBuilder(object):
         # mirror
         if "M" in options:
             n = len(patterns)
-            for pattern, res in patterns[0:n]:
+            for pattern, res in patterns[:n]:
                 patterns.append((self._string_permute(pattern, MIRROR_MATRIX), res))
 
         # negate
         if "N" in options:
             n = len(patterns)
-            for pattern, res in patterns[0:n]:
+            for pattern, res in patterns[:n]:
                 # Swap 0 and 1
                 pattern = pattern.replace("0", "Z").replace("1", "0").replace("Z", "1")
                 res = 1 - int(res)
@@ -147,7 +146,8 @@ class LutBuilder(object):
         for p in self.patterns:
             m = re.search(r"(\w*):?\s*\((.+?)\)\s*->\s*(\d)", p.replace("\n", ""))
             if not m:
-                raise Exception('Syntax error in pattern "' + p + '"')
+                msg = 'Syntax error in pattern "' + p + '"'
+                raise Exception(msg)
             options = m.group(1)
             pattern = m.group(2)
             result = int(m.group(3))
@@ -178,7 +178,7 @@ class LutBuilder(object):
         return self.lut
 
 
-class MorphOp(object):
+class MorphOp:
     """A class for binary morphological operators"""
 
     def __init__(self, lut=None, op_name=None, patterns=None):
@@ -195,10 +195,12 @@ class MorphOp(object):
         Returns a tuple of the number of changed pixels and the
         morphed image"""
         if self.lut is None:
-            raise Exception("No operator loaded")
+            msg = "No operator loaded"
+            raise Exception(msg)
 
         if image.mode != "L":
-            raise Exception("Image must be binary, meaning it must use mode L")
+            msg = "Image mode must be L"
+            raise ValueError(msg)
         outimage = Image.new(image.mode, image.size, None)
         count = _imagingmorph.apply(bytes(self.lut), image.im.id, outimage.im.id)
         return count, outimage
@@ -210,10 +212,12 @@ class MorphOp(object):
         Returns a list of tuples of (x,y) coordinates
         of all matching pixels. See :ref:`coordinate-system`."""
         if self.lut is None:
-            raise Exception("No operator loaded")
+            msg = "No operator loaded"
+            raise Exception(msg)
 
         if image.mode != "L":
-            raise Exception("Image must be binary, meaning it must use mode L")
+            msg = "Image mode must be L"
+            raise ValueError(msg)
         return _imagingmorph.match(bytes(self.lut), image.im.id)
 
     def get_on_pixels(self, image):
@@ -223,7 +227,8 @@ class MorphOp(object):
         of all matching pixels. See :ref:`coordinate-system`."""
 
         if image.mode != "L":
-            raise Exception("Image must be binary, meaning it must use mode L")
+            msg = "Image mode must be L"
+            raise ValueError(msg)
         return _imagingmorph.get_on_pixels(image.im.id)
 
     def load_lut(self, filename):
@@ -233,12 +238,14 @@ class MorphOp(object):
 
         if len(self.lut) != LUT_SIZE:
             self.lut = None
-            raise Exception("Wrong size operator file!")
+            msg = "Wrong size operator file!"
+            raise Exception(msg)
 
     def save_lut(self, filename):
         """Save an operator to an mrl file"""
         if self.lut is None:
-            raise Exception("No operator loaded")
+            msg = "No operator loaded"
+            raise Exception(msg)
         with open(filename, "wb") as f:
             f.write(self.lut)
 
