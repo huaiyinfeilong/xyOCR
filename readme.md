@@ -29,6 +29,10 @@ Any comments and suggestions are welcome to communicate:
 
 ## Upgrade log
 
+### Version 2.0.1
+
+* Fix instability in network proxy environment.
+
 ### Version 2.0
 
 * Added Baidu online OCR recognition engine, supports general recognition and accurate version recognition, and can use shared key and own private key. If you use your own private key, you need to configure it in the settings.
