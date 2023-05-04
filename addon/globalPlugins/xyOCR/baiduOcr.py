@@ -33,7 +33,7 @@ class BaiduOcr(ocr.Ocr):
 		if not url or not method:
 			return
 		# 不使用代理
-		proxy = urllib.request.ProxyHandler()
+		proxy = urllib.request.ProxyHandler({})
 		opener = urllib.request.build_opener(proxy)
 		# 构建Request请求对象
 		request = urllib.request.Request(url=url, headers=headers, data=payload, method=method)
