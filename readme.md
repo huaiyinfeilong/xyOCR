@@ -29,6 +29,10 @@ Any comments and suggestions are welcome to communicate:
 
 ## Upgrade log
 
+### Version 2.0.2
+
+*Fix the issue where online OCR may also be unavailable on machines where offline OCR is not available.
+
 ### Version 2.0.1
 
 * Fix instability in network proxy environment.

@@ -94,7 +94,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			self.ocr_list.append(BaiduGeneralOcr())
 			self.ocr_list.append(BaiduAccurateOcr())
 			for ocr in self.ocr_list:
-				ocr.initRecognizer()
+				try:
+					ocr.initRecognizer()
+				except Exception as e:
+					log.debug(f"初始化OCR引擎失败：{e}")
+					continue
 			# 配置文件中的引擎索引若大于实际索引范围，则设置引擎索引为0，这种超出情况可能出现于拷贝用户配置到另一台不支持x64环境的机器中运行
 			index = config.conf["xinyiOcr"]["engine"] \
 			if config.conf["xinyiOcr"]["engine"] < len(self.ocr_list) else 0
