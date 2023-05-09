@@ -97,7 +97,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 				try:
 					ocr.initRecognizer()
 				except Exception as e:
+					# 初始化引擎失败，从引擎列表中移除有问题的引擎，并继续初始化后续引擎
 					log.debug(f"初始化OCR引擎失败：{e}")
+					self.ocr_list.remove(ocr)
 					continue
 			# 配置文件中的引擎索引若大于实际索引范围，则设置引擎索引为0，这种超出情况可能出现于拷贝用户配置到另一台不支持x64环境的机器中运行
 			index = config.conf["xinyiOcr"]["engine"] \
