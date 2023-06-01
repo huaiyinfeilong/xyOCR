@@ -11,10 +11,14 @@ sys.path.insert(0, os.path.dirname(__file__))
 from PIL import Image, ImageGrab
 import ui
 import base64
+import threading
 
 
 # 图片内容识别基础类
 class ImageRecognizer(ContentRecognizer):
+	# 图片识别线程对象
+	thread = None
+
 	# 网络请求封装
 	def _http_request(self, url=None, headers=None, payload=None, method=None):
 		if not url or not method:
@@ -32,8 +36,20 @@ class ImageRecognizer(ContentRecognizer):
 			return 4
 		return 1
 
-	# 导航对象识别
+	# 导航对象图片识别
 	def recognize(self, pixels, imageInfo, onResult):
+		# 如果有识别任务正在进行则返回
+		if self.thread and self.thread.is_alive():
+			return
+		self.thread = threading.Thread(target=self._recognize, kwargs={
+			"pixels": pixels,
+			"imageInfo": imageInfo,
+			"onResult": onResult
+		})
+		self.thread.start()
+
+	# 导航对象图片识别线程
+	def _recognize(self, pixels, imageInfo, onResult):
 		width = imageInfo.recogWidth
 		height = imageInfo.recogHeight
 		image = Image.frombytes("RGBX", (width, height), pixels, "raw", "BGRX")
