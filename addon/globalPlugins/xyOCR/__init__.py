@@ -14,6 +14,7 @@ import wx
 from .paddleOcr import PaddleOcr
 from .baiduOcr import BaiduGeneralOcr, BaiduAccurateOcr
 from .util import is64ProcessorArchitecture
+from .imageRecog import ImageRecognizer
 
 
 addonHandler.initTranslation()
@@ -59,6 +60,7 @@ CATEGORY_NAME = _("Xinyi OCR")
 
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
+	imageRecognizer = ImageRecognizer()
 	ocr_list = []
 	ocr = None
 	thread = None
@@ -176,7 +178,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 	def onRecognizeClipboardResult(self, result):
 		if not result:
-
 			ui.message(_("Recognition failed"))
 			return
 		result_obj = CustomRecogResultNVDAObject(result=result)
@@ -186,6 +187,15 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		if self.ocr is not None:
 			self.ocr.uninitRecognizer()
 			self.ocr = None
+
+	@scriptHandler.script(
+		# Translators: Image description
+		description=_("Image description"),
+		category=CATEGORY_NAME,
+		gesture="kb:NVDA+ALT+P"
+	)
+	def script_imageRecognize(self, gesture):
+		recogUi.recognizeNavigatorObject(self.imageRecognizer)
 
 
 class CustomRecogResultNVDAObject(recogUi.RecogResultNVDAObject):
