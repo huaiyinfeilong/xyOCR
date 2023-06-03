@@ -167,7 +167,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			self.thread.start()
 
 	def recognize_clipboard(self):
-		# Translators: Virtual document title: Recognition result
 		if isinstance(api.getFocusObject(), recogUi.RecogResultNVDAObject):
 			# Translators: Already in a content recognition result
 			ui.message(_("Already in a content recognition result"))
@@ -196,6 +195,21 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	)
 	def script_imageRecognize(self, gesture):
 		recogUi.recognizeNavigatorObject(self.imageRecognizer)
+
+	@scriptHandler.script(
+		# Translators: Clipboard image description
+		description=_("Clipboard image description"),
+		category=CATEGORY_NAME,
+		gesture="kb:NVDA+ALT+SHIFT+P"
+	)
+	def script_clipboardImageRecognize(self, gesture):
+		if isinstance(api.getFocusObject(), recogUi.RecogResultNVDAObject):
+			# Translators: Already in a content recognition result
+			ui.message(_("Already in a content recognition result"))
+			return
+		# Translators: Recognizing
+		ui.message(_("Recognizing"))
+		self.imageRecognizer.recognize_clipboard()
 
 
 class CustomRecogResultNVDAObject(recogUi.RecogResultNVDAObject):

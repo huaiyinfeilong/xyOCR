@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 'xyOCR' '1.0'\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
-"POT-Creation-Date: 2023-05-02 00:23+0800\n"
+"POT-Creation-Date: 2023-06-03 18:51+0800\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -22,79 +22,94 @@ msgstr ""
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on
 #. to be shown on installation and add-on information found in Add-ons Manager.
-#: addon\globalPlugins\xyOCR\__init__.py:23
-#: addon\globalPlugins\xyOCR\__init__.py:56 buildVars.py:23
+#: addon\globalPlugins\xyOCR\__init__.py:26
+#: addon\globalPlugins\xyOCR\__init__.py:59 buildVars.py:23
 msgid "Xinyi OCR"
 msgstr "新翼OCR"
 
 #. Translators: The label for using share key checkbox
-#: addon\globalPlugins\xyOCR\__init__.py:28
+#: addon\globalPlugins\xyOCR\__init__.py:31
 msgid "Using share key"
 msgstr "使用共享密钥"
 
 #. Translators: The label for my APP key textbox
-#: addon\globalPlugins\xyOCR\__init__.py:34
+#: addon\globalPlugins\xyOCR\__init__.py:37
 msgid "My app key"
 msgstr "我的应用程序key"
 
 #. Translators: The label for my APP secret textbox
-#: addon\globalPlugins\xyOCR\__init__.py:41
+#: addon\globalPlugins\xyOCR\__init__.py:44
 msgid "My app secret"
 msgstr "我的应用程序 secret"
 
 #. Translators: Choose OCR engine
-#: addon\globalPlugins\xyOCR\__init__.py:102
+#: addon\globalPlugins\xyOCR\__init__.py:116
 msgid "Switch OCR engine"
 msgstr "切换OCR引擎"
 
 #. Translators: Text recognition
-#: addon\globalPlugins\xyOCR\__init__.py:121
+#: addon\globalPlugins\xyOCR\__init__.py:135
 msgid "Text recognition"
 msgstr "文字识别"
 
 #. Translators: Recognition failed
-#: addon\globalPlugins\xyOCR\__init__.py:129
-#: addon\globalPlugins\xyOCR\__init__.py:140
-#: addon\globalPlugins\xyOCR\__init__.py:168
-#: addon\globalPlugins\xyOCR\baiduOcr.py:114
-#: addon\globalPlugins\xyOCR\baiduOcr.py:163
-#: addon\globalPlugins\xyOCR\baiduOcr.py:185
+#. 剪贴板中既不是图片内容也不是图片文件
+#. Translators: Recognition failed
+#: addon\globalPlugins\xyOCR\__init__.py:143
+#: addon\globalPlugins\xyOCR\__init__.py:154
+#: addon\globalPlugins\xyOCR\__init__.py:180
+#: addon\globalPlugins\xyOCR\baiduOcr.py:132
+#: addon\globalPlugins\xyOCR\baiduOcr.py:180
+#: addon\globalPlugins\xyOCR\baiduOcr.py:201
+#: addon\globalPlugins\xyOCR\imageRecog.py:105
 #: addon\globalPlugins\xyOCR\paddleOcr.py:95
 #: addon\globalPlugins\xyOCR\paddleOcr.py:128
 msgid "Recognition failed"
 msgstr "识别失败"
 
-#: addon\globalPlugins\xyOCR\__init__.py:134
+#: addon\globalPlugins\xyOCR\__init__.py:148
 msgid "Please turn off the screen curtain before recognition"
 msgstr "识别前请关闭黑屏"
 
 #. Translators: Clipboard recognition
-#: addon\globalPlugins\xyOCR\__init__.py:144
+#: addon\globalPlugins\xyOCR\__init__.py:158
 msgid "Clipboard recognition"
 msgstr "剪贴板识别"
 
 #. Translators: Already in a content recognition result
-#: addon\globalPlugins\xyOCR\__init__.py:159
+#: addon\globalPlugins\xyOCR\__init__.py:172
+#: addon\globalPlugins\xyOCR\__init__.py:208
 msgid "Already in a content recognition result"
 msgstr "现已处于内容识别结果区域"
 
 #. Translators: Recognizing
-#: addon\globalPlugins\xyOCR\__init__.py:162
+#: addon\globalPlugins\xyOCR\__init__.py:175
+#: addon\globalPlugins\xyOCR\__init__.py:211
 msgid "Recognizing"
 msgstr "正在识别"
 
+#. Translators: Image description
+#: addon\globalPlugins\xyOCR\__init__.py:192
+msgid "Image description"
+msgstr "图像描述"
+
+#. Translators: Clipboard image description
+#: addon\globalPlugins\xyOCR\__init__.py:201
+msgid "Clipboard image description"
+msgstr "剪贴板图像描述"
+
 #. Translators: Message: the app key or app secret is incorrect.
-#: addon\globalPlugins\xyOCR\baiduOcr.py:66
+#: addon\globalPlugins\xyOCR\baiduOcr.py:69
 msgid "The app key or app secret is incorrect."
 msgstr "应用程序key或应用程序secret不正确。"
 
 #. Translators: Baidu Accurate OCR
-#: addon\globalPlugins\xyOCR\baiduOcr.py:197
+#: addon\globalPlugins\xyOCR\baiduOcr.py:213
 msgid "Baidu Accurate OCR"
 msgstr "百度高精度OCR"
 
 #. Translators: Baidu General OCR
-#: addon\globalPlugins\xyOCR\baiduOcr.py:204
+#: addon\globalPlugins\xyOCR\baiduOcr.py:220
 msgid "Baidu General OCR"
 msgstr "百度通用OCR"
 
@@ -103,30 +118,22 @@ msgstr "百度通用OCR"
 msgid "Offline OCR"
 msgstr "离线OCR"
 
-#. Translators: title of the error dialog shown when trying to install the add-on in unsupported systems.
-#: addon\installTasks.py:68
-msgid "Unable to complete installation"
-msgstr "无法完成安装"
-
-#. Translators: Dialog text shown when trying to install the add-on on an unsupported processor architecture.
-#: addon\installTasks.py:71
-msgid ""
-"This addon can only run on 64-bit systems, but you are currently using a 32-"
-"bit system, so the installation cannot be completed."
-msgstr ""
-"此插件仅能在64位系统上运行，但您当前使用的是32位系统，因此无法完成安装。"
-
 #. Add-on description
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
 #: buildVars.py:26
 msgid "Aggregating various offline and online OCR services"
 msgstr "聚合各种离线和在线 OCR 服务"
 
+#~ msgid "Unable to complete installation"
+#~ msgstr "无法完成安装"
+
+#~ msgid "This addon can only run on 64-bit systems, but you are currently using a 32-bit system, so the installation cannot be completed."
+#~ msgstr "此插件仅能在64位系统上运行，但您当前使用的是32位系统，因此无法完成安装。"
+
 #~ msgid "Unsupported architecture"
 #~ msgstr "不支持的体系结构"
 
-#~ msgid ""
-#~ "You are using {Architecture} processor not supported by this add-on.\n"
+#~ msgid "You are using {Architecture} processor not supported by this add-on.\n"
 #~ msgstr "您正在使用此插件不支持的 {Architecture} 处理器。\\n\n"
 
 #~ msgid "Recognition result"

@@ -4,6 +4,8 @@ This is an NVDA addon that provides offline and online OCR recognition. Offline 
 
 This add-on currently provides PaddleOCR_json's offline OCR recognition engine and the online Baidu general version and accurate version of the recognition engine. After installing the add-on, the PaddleOCR_json component will be automatically installed. More other offline and online OCR recognition engines will be gradually connected in the future.
 
+In addition, this plugin also provides image description function, which can identify image content.
+
 ## Addon Advantages
 
 * The recognition speed is fast, and the offline recognition is about 100ms. The actual situation varies with the performance configuration of the computer.
@@ -12,9 +14,11 @@ This add-on currently provides PaddleOCR_json's offline OCR recognition engine a
 
 ## Keyboard Shortcuts
 
-* Navigation object recognition: NVDA+ALT+O
-* Clipboard recognition: NVDA+ALT+SHIFT+O
-* Switch recognition engine: NVDA+ALT+9
+* Navigation object OCR recognition: NVDA+ALT+O
+* Clipboard OCR recognition: NVDA+ALT+SHIFT+O
+* Switch OCR recognition engine: NVDA+ALT+9
+* Image description: NVDA+ALT+P
+* Clipboard image description: NVDA+ALT+SHIFT+P
 
 Shortcut key settings: You can set shortcut keys for each command under the "Xinyi OCR" category in the "Keys and Gestures" setting.
 
@@ -28,6 +32,10 @@ Any comments and suggestions are welcome to communicate:
 * WeChat: huaiyinfeilong
 
 ## Upgrade log
+
+### Version 3.0
+
+* Add image content recognition function, which can identify and describe the images browsed and the images in the clipboard.
 
 ### Version 2.0.2
 
