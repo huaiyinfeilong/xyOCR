@@ -33,6 +33,10 @@ Any comments and suggestions are welcome to communicate:
 
 ## Upgrade log
 
+### Version 3.0.1
+
+* New image description black screen detection function: If the image description operation is performed while the Mu Lianping function is on, a prompt will be given.
+
 ### Version 3.0
 
 * Add image content recognition function, which can identify and describe the images browsed and the images in the clipboard.

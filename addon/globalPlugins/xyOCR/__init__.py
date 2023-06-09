@@ -194,6 +194,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		gesture="kb:NVDA+ALT+P"
 	)
 	def script_imageRecognize(self, gesture):
+		if self.isScreenCurtainRunning():
+			# Translators: Please turn off the screen curtain before recognition
+			log.debug("幕帘屏处于开启状态，无法进行识别。")
+			ui.message(_("Please turn off the screen curtain before recognition"))
+			return
 		recogUi.recognizeNavigatorObject(self.imageRecognizer)
 
 	@scriptHandler.script(
