@@ -31,6 +31,8 @@
 #
 # See the README file for information on usage and redistribution.
 #
+from __future__ import annotations
+
 import array
 import io
 import math
@@ -46,7 +48,6 @@ from ._binary import i16be as i16
 from ._binary import i32be as i32
 from ._binary import o8
 from ._binary import o16be as o16
-from ._deprecate import deprecate
 from .JpegPresets import presets
 
 #
@@ -86,10 +87,12 @@ def APP(self, marker):
                 self.info["dpi"] = jfif_density
             self.info["jfif_unit"] = jfif_unit
             self.info["jfif_density"] = jfif_density
-    elif marker == 0xFFE1 and s[:5] == b"Exif\0":
-        if "exif" not in self.info:
-            # extract EXIF information (incomplete)
-            self.info["exif"] = s  # FIXME: value will change
+    elif marker == 0xFFE1 and s[:6] == b"Exif\0\0":
+        # extract EXIF information
+        if "exif" in self.info:
+            self.info["exif"] += s[6:]
+        else:
+            self.info["exif"] = s
             self._exif_offset = self.fp.tell() - n + 6
     elif marker == 0xFFE2 and s[:5] == b"FPXR\0":
         # extract FlashPix information (incomplete)
@@ -166,16 +169,25 @@ def APP(self, marker):
             except TypeError:
                 dpi = x_resolution
             if math.isnan(dpi):
-                raise ValueError
+                msg = "DPI is not a number"
+                raise ValueError(msg)
             if resolution_unit == 3:  # cm
                 # 1 dpcm = 2.54 dpi
                 dpi *= 2.54
             self.info["dpi"] = dpi, dpi
-        except (TypeError, KeyError, SyntaxError, ValueError, ZeroDivisionError):
-            # SyntaxError for invalid/unreadable EXIF
+        except (
+            struct.error,
+            KeyError,
+            SyntaxError,
+            TypeError,
+            ValueError,
+            ZeroDivisionError,
+        ):
+            # struct.error for truncated EXIF
             # KeyError for dpi not included
-            # ZeroDivisionError for invalid dpi rational value
+            # SyntaxError for invalid/unreadable EXIF
             # ValueError or TypeError for dpi being an invalid float
+            # ZeroDivisionError for invalid dpi rational value
             self.info["dpi"] = 72, 72
 
 
@@ -209,11 +221,11 @@ def SOF(self, marker):
 
     self.layers = s[5]
     if self.layers == 1:
-        self.mode = "L"
+        self._mode = "L"
     elif self.layers == 3:
-        self.mode = "RGB"
+        self._mode = "RGB"
     elif self.layers == 4:
-        self.mode = "CMYK"
+        self._mode = "CMYK"
     else:
         msg = f"cannot handle {self.layers}-layer images"
         raise SyntaxError(msg)
@@ -225,9 +237,7 @@ def SOF(self, marker):
         # fixup icc profile
         self.icclist.sort()  # sort by sequence number
         if self.icclist[0][13] == len(self.icclist):
-            profile = []
-            for p in self.icclist:
-                profile.append(p[14:])
+            profile = [p[14:] for p in self.icclist]
             icc_profile = b"".join(profile)
         else:
             icc_profile = None  # wrong number of fragments
@@ -389,7 +399,7 @@ class JpegImageFile(ImageFile.ImageFile):
                     # self.__offset = self.fp.tell()
                     break
                 s = self.fp.read(1)
-            elif i == 0 or i == 0xFFFF:
+            elif i in {0, 0xFFFF}:
                 # padded marker or junk; move on
                 s = b"\xff"
             elif i == 0xFF00:  # Skip extraneous data (escaped 0xFF)
@@ -427,7 +437,7 @@ class JpegImageFile(ImageFile.ImageFile):
         original_size = self.size
 
         if a[0] == "RGB" and mode in ["L", "YCbCr"]:
-            self.mode = mode
+            self._mode = mode
             a = mode, ""
 
         if size:
@@ -458,6 +468,11 @@ class JpegImageFile(ImageFile.ImageFile):
         if os.path.exists(self.filename):
             subprocess.check_call(["djpeg", "-outfile", path, self.filename])
         else:
+            try:
+                os.unlink(path)
+            except OSError:
+                pass
+
             msg = "Invalid Filename"
             raise ValueError(msg)
 
@@ -471,7 +486,7 @@ class JpegImageFile(ImageFile.ImageFile):
             except OSError:
                 pass
 
-        self.mode = self.im.mode
+        self._mode = self.im.mode
         self._size = self.im.size
 
         self.tile = []
@@ -492,7 +507,7 @@ class JpegImageFile(ImageFile.ImageFile):
 
         for segment, content in self.applist:
             if segment == "APP1":
-                marker, xmp_tags = content.rsplit(b"\x00", 1)
+                marker, xmp_tags = content.split(b"\x00")[:2]
                 if marker == b"http://ns.adobe.com/xap/1.0/":
                     return self._getxmp(xmp_tags)
         return {}
@@ -612,11 +627,6 @@ samplings = {
 # fmt: on
 
 
-def convert_dict_qtables(qtables):
-    deprecate("convert_dict_qtables", 10, action="Conversion is no longer needed")
-    return qtables
-
-
 def get_sampling(im):
     # There's no subsampling when images have only 1 layer
     # (grayscale images) or when they are CMYK (4 layers),
@@ -712,7 +722,8 @@ def _save(im, fp, filename):
             for idx, table in enumerate(qtables):
                 try:
                     if len(table) != 64:
-                        raise TypeError
+                        msg = "Invalid quantization table"
+                        raise TypeError(msg)
                     table = array.array("H", table)
                 except TypeError as e:
                     msg = "Invalid quantization table"
@@ -774,10 +785,13 @@ def _save(im, fp, filename):
         progressive,
         info.get("smooth", 0),
         optimize,
+        info.get("keep_rgb", False),
         info.get("streamtype", 0),
         dpi[0],
         dpi[1],
         subsampling,
+        info.get("restart_marker_blocks", 0),
+        info.get("restart_marker_rows", 0),
         qtables,
         comment,
         extra,
@@ -798,10 +812,14 @@ def _save(im, fp, filename):
             bufsize = 2 * im.size[0] * im.size[1]
         else:
             bufsize = im.size[0] * im.size[1]
-
-    # The EXIF info needs to be written as one block, + APP1, + one spare byte.
-    # Ensure that our buffer is big enough. Same with the icc_profile block.
-    bufsize = max(ImageFile.MAXBLOCK, bufsize, len(exif) + 5, len(extra) + 1)
+        if exif:
+            bufsize += len(exif) + 5
+        if extra:
+            bufsize += len(extra) + 1
+    else:
+        # The EXIF info needs to be written as one block, + APP1, + one spare byte.
+        # Ensure that our buffer is big enough. Same with the icc_profile block.
+        bufsize = max(bufsize, len(exif) + 5, len(extra) + 1)
 
     ImageFile._save(im, fp, [("jpeg", (0, 0) + im.size, 0, rawmode)], bufsize)
 

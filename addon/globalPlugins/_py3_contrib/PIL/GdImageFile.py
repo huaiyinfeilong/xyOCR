@@ -25,7 +25,7 @@
     implementation is provided for convenience and demonstrational
     purposes only.
 """
-
+from __future__ import annotations
 
 from . import ImageFile, ImagePalette, UnidentifiedImageError
 from ._binary import i16be as i16
@@ -47,11 +47,11 @@ class GdImageFile(ImageFile.ImageFile):
         # Header
         s = self.fp.read(1037)
 
-        if not i16(s) in [65534, 65535]:
+        if i16(s) not in [65534, 65535]:
             msg = "Not a valid GD 2.x .gd file"
             raise SyntaxError(msg)
 
-        self.mode = "L"  # FIXME: "P"
+        self._mode = "L"  # FIXME: "P"
         self._size = i16(s, 2), i16(s, 4)
 
         true_color = s[6]

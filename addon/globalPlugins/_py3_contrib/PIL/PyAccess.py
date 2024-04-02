@@ -18,9 +18,12 @@
 #    * Fill.c uses the integer form, but it's still going to use the old
 #      Access.c implementation.
 #
+from __future__ import annotations
 
 import logging
 import sys
+
+from ._deprecate import deprecate
 
 try:
     from cffi import FFI
@@ -40,13 +43,14 @@ except ImportError as ex:
     # anything in core.
     from ._util import DeferredError
 
-    FFI = ffi = DeferredError(ex)
+    FFI = ffi = DeferredError.new(ex)
 
 logger = logging.getLogger(__name__)
 
 
 class PyAccess:
     def __init__(self, img, readonly=False):
+        deprecate("PyAccess", 11)
         vals = dict(img.im.unsafe_ptrs)
         self.readonly = readonly
         self.image8 = ffi.cast("unsigned char **", vals["image8"])
@@ -241,7 +245,7 @@ class _PyAccessI16_L(PyAccess):
         except TypeError:
             color = min(color[0], 65535)
 
-        pixel.l = color & 0xFF  # noqa: E741
+        pixel.l = color & 0xFF
         pixel.r = color >> 8
 
 
@@ -262,7 +266,7 @@ class _PyAccessI16_B(PyAccess):
         except Exception:
             color = min(color[0], 65535)
 
-        pixel.l = color >> 8  # noqa: E741
+        pixel.l = color >> 8
         pixel.r = color & 0xFF
 
 

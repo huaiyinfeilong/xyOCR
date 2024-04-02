@@ -47,12 +47,19 @@ class XinyiOcrSettingsPanel(gui.SettingsPanel):
 			wx.TextCtrl,
 		)
 		self.myAppSecretTextCtrl.SetValue(config.conf["xinyiOcr"]["baidu"]["myAppSecret"])
+		# Translators: Periodically refresh recognized content
+		auto_refresh_label = _("Periodically refresh recognized content")
+		self.autoRefreshCheckBox = helper.addItem(
+			wx.CheckBox(self, label=_(auto_refresh_label))
+		)
+		self.autoRefreshCheckBox.SetValue(config.conf["xinyiOcr"]["autoRefresh"])
 
 	def onSave(self):
 		# 保存配置
 		config.conf["xinyiOcr"]["baidu"]["usingShareKey"] = self.usingShareKeyCheckBox.IsChecked()
 		config.conf["xinyiOcr"]["baidu"]["myAppKey"] = self.myAppKeyTextCtrl.GetValue()
 		config.conf["xinyiOcr"]["baidu"]["myAppSecret"] = self.myAppSecretTextCtrl.GetValue()
+		config.conf["xinyiOcr"]["autoRefresh"] = self.autoRefreshCheckBox.IsChecked()
 
 
 # Translators: Script description
@@ -86,7 +93,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 				"shareAppSecret": "string(default='91CTiEsiET4KKN5LrhT6MGS3fCjGSkS1')",
 				"myAppKey": "string(default='')",
 				"myAppSecret": "string(default='')"
-			}
+			},
+			"autoRefresh": "boolean(default=False)"
 		}
 		config.conf.spec["xinyiOcr"] = confspec
 		gui.settingsDialogs.NVDASettingsDialog.categoryClasses.append(XinyiOcrSettingsPanel)
@@ -148,6 +156,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			ui.message(_("Please turn off the screen curtain before recognition"))
 			return
 		try:
+			self.ocr.allowAutoRefresh = True
 			recogUi.recognizeNavigatorObject(self.ocr)
 		except Exception as e:
 			log.error(f"识别失败：\n{e}")
@@ -163,6 +172,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		if self.ocr is None:
 			return
 		if not self.thread or not self.thread.is_alive():
+			self.ocr.allowAutoRefresh = False
 			self.thread = threading.Thread(target=self.recognize_clipboard)
 			self.thread.start()
 

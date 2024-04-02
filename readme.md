@@ -26,12 +26,16 @@ Shortcut key settings: You can set shortcut keys for each command under the "Xin
 
 Any comments and suggestions are welcome to communicate:
 
-* Project address: https://github.com/huaiyinfeilong/xyocr
+* Project address: [https://github.com/huaiyinfeilong/xyocr](https://github.com/huaiyinfeilong/xyocr)
 * E-mail: huaiyinfeilong@163.com
 * QQ: 354522977
 * WeChat: huaiyinfeilong
 
 ## Upgrade log
+
+### Version 3.0.2
+
+* Adapt to NVDA 2024.1 version.
 
 ### Version 3.0.1
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import collections
 import os
 import sys
@@ -24,7 +26,7 @@ def check_module(feature):
     :returns: ``True`` if available, ``False`` otherwise.
     :raises ValueError: If the module is not defined in this version of Pillow.
     """
-    if not (feature in modules):
+    if feature not in modules:
         msg = f"Unknown module {feature}"
         raise ValueError(msg)
 

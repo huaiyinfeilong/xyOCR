@@ -30,6 +30,7 @@
 #
 # See the README file for information on usage and redistribution.
 #
+from __future__ import annotations
 
 import itertools
 import logging
@@ -45,7 +46,6 @@ from ._binary import i32be as i32
 from ._binary import o8
 from ._binary import o16be as o16
 from ._binary import o32be as o32
-from ._deprecate import deprecate
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ _MAGIC = b"\211PNG\r\n\032\n"
 
 _MODES = {
     # supported bits/color combinations, and corresponding modes/rawmodes
-    # Greyscale
+    # Grayscale
     (1, 0): ("1", "1"),
     (2, 0): ("L", "L;2"),
     (4, 0): ("L", "L;4"),
@@ -71,7 +71,7 @@ _MODES = {
     (2, 3): ("P", "P;2"),
     (4, 3): ("P", "P;4"),
     (8, 3): ("P", "P"),
-    # Greyscale with alpha
+    # Grayscale with alpha
     (8, 4): ("LA", "LA"),
     (16, 4): ("RGBA", "LA;16B"),  # LA;16B->LA not yet available
     # Truecolour with alpha
@@ -129,17 +129,6 @@ class Blend(IntEnum):
     This frame should be alpha composited with the previous output image contents.
     See :ref:`Saving APNG sequences<apng-saving>`.
     """
-
-
-def __getattr__(name):
-    for enum, prefix in {Disposal: "APNG_DISPOSE_", Blend: "APNG_BLEND_"}.items():
-        if name.startswith(prefix):
-            name = name[len(prefix) :]
-            if name in enum.__members__:
-                deprecate(f"{prefix}{name}", 10, f"{enum.__name__}.{name}")
-                return enum[name]
-    msg = f"module '{__name__}' has no attribute '{name}'"
-    raise AttributeError(msg)
 
 
 def _safe_zlib_decompress(s):
@@ -450,11 +439,12 @@ class PngStream(ChunkStream):
             tile = [("zip", (0, 0) + self.im_size, pos, self.im_rawmode)]
         self.im_tile = tile
         self.im_idat = length
-        raise EOFError
+        msg = "image data found"
+        raise EOFError(msg)
 
     def chunk_IEND(self, pos, length):
-        # end of PNG image
-        raise EOFError
+        msg = "end of PNG image"
+        raise EOFError(msg)
 
     def chunk_PLTE(self, pos, length):
         # palette
@@ -749,7 +739,7 @@ class PngImageFile(ImageFile.ImageFile):
         # difficult to break if things go wrong in the decoder...
         # (believe me, I've tried ;-)
 
-        self.mode = self.png.im_mode
+        self._mode = self.png.im_mode
         self._size = self.png.im_size
         self.info = self.png.im_info
         self._text = None
@@ -903,7 +893,8 @@ class PngImageFile(ImageFile.ImageFile):
             self.dispose_extent = self.info.get("bbox")
 
             if not self.tile:
-                raise EOFError
+                msg = "image not found in APNG frame"
+                raise EOFError(msg)
 
         # setup frame disposal (actual disposal done when needed in the next _seek())
         if self._prev_im is None and self.dispose_op == Disposal.OP_PREVIOUS:
@@ -1054,6 +1045,7 @@ _OUTMODES = {
     "LA": ("LA", b"\x08\x04"),
     "I": ("I;16B", b"\x10\x00"),
     "I;16": ("I;16B", b"\x10\x00"),
+    "I;16B": ("I;16B", b"\x10\x00"),
     "P;1": ("P;1", b"\x01\x03"),
     "P;2": ("P;2", b"\x02\x03"),
     "P;4": ("P;4", b"\x04\x03"),
@@ -1116,10 +1108,7 @@ def _write_multiple_frames(im, fp, chunk, rawmode, default_image, append_images)
             if im_frame.mode == rawmode:
                 im_frame = im_frame.copy()
             else:
-                if rawmode == "P":
-                    im_frame = im_frame.convert(rawmode, palette=im.palette)
-                else:
-                    im_frame = im_frame.convert(rawmode)
+                im_frame = im_frame.convert(rawmode)
             encoderinfo = im.encoderinfo.copy()
             if isinstance(duration, (list, tuple)):
                 encoderinfo["duration"] = duration[frame_count]
@@ -1150,20 +1139,26 @@ def _write_multiple_frames(im, fp, chunk, rawmode, default_image, append_images)
                 else:
                     base_im = previous["im"]
                 delta = ImageChops.subtract_modulo(
-                    im_frame.convert("RGB"), base_im.convert("RGB")
+                    im_frame.convert("RGBA"), base_im.convert("RGBA")
                 )
-                bbox = delta.getbbox()
+                bbox = delta.getbbox(alpha_only=False)
                 if (
                     not bbox
                     and prev_disposal == encoderinfo.get("disposal")
                     and prev_blend == encoderinfo.get("blend")
                 ):
-                    if isinstance(duration, (list, tuple)):
-                        previous["encoderinfo"]["duration"] += encoderinfo["duration"]
+                    previous["encoderinfo"]["duration"] += encoderinfo.get(
+                        "duration", duration
+                    )
                     continue
             else:
                 bbox = None
+            if "duration" not in encoderinfo:
+                encoderinfo["duration"] = duration
             im_frames.append({"im": im_frame, "bbox": bbox, "encoderinfo": encoderinfo})
+
+    if len(im_frames) == 1 and not default_image:
+        return im_frames[0]["im"]
 
     # animation control
     chunk(
@@ -1175,6 +1170,8 @@ def _write_multiple_frames(im, fp, chunk, rawmode, default_image, append_images)
 
     # default image IDAT (if it exists)
     if default_image:
+        if im.mode != rawmode:
+            im = im.convert(rawmode)
         ImageFile._save(im, _idat(fp, chunk), [("zip", (0, 0) + im.size, 0, rawmode)])
 
     seq_num = 0
@@ -1187,7 +1184,7 @@ def _write_multiple_frames(im, fp, chunk, rawmode, default_image, append_images)
             im_frame = im_frame.crop(bbox)
         size = im_frame.size
         encoderinfo = frame_data["encoderinfo"]
-        frame_duration = int(round(encoderinfo.get("duration", duration)))
+        frame_duration = int(round(encoderinfo["duration"]))
         frame_disposal = encoderinfo.get("disposal", disposal)
         frame_blend = encoderinfo.get("blend", blend)
         # frame control
@@ -1236,11 +1233,7 @@ def _save(im, fp, filename, chunk=putchunk, save_all=False):
         )
         modes = set()
         append_images = im.encoderinfo.get("append_images", [])
-        if default_image:
-            chain = itertools.chain(append_images)
-        else:
-            chain = itertools.chain([im], append_images)
-        for im_seq in chain:
+        for im_seq in itertools.chain([im], append_images):
             for im_frame in ImageSequence.Iterator(im_seq):
                 modes.add(im_frame.mode)
         for mode in ("RGBA", "RGB", "P"):
@@ -1402,8 +1395,10 @@ def _save(im, fp, filename, chunk=putchunk, save_all=False):
         chunk(fp, b"eXIf", exif)
 
     if save_all:
-        _write_multiple_frames(im, fp, chunk, rawmode, default_image, append_images)
-    else:
+        im = _write_multiple_frames(
+            im, fp, chunk, rawmode, default_image, append_images
+        )
+    if im:
         ImageFile._save(im, _idat(fp, chunk), [("zip", (0, 0) + im.size, 0, rawmode)])
 
     if info:

@@ -16,12 +16,13 @@
 #
 # See the README file for information on usage and redistribution.
 #
+from __future__ import annotations
 
 import functools
 import operator
 import re
 
-from . import Image, ImagePalette
+from . import ExifTags, Image, ImagePalette
 
 #
 # helpers
@@ -56,7 +57,7 @@ def _lut(image, lut):
             lut = lut + lut + lut
         return image.point(lut)
     else:
-        msg = "not supported for this image mode"
+        msg = f"not supported for mode {image.mode}"
         raise OSError(msg)
 
 
@@ -242,7 +243,7 @@ def contain(image, size, method=Image.Resampling.BICUBIC):
     Returns a resized version of the image, set to the maximum width and height
     within the requested size, while maintaining the original aspect ratio.
 
-    :param image: The image to resize and crop.
+    :param image: The image to resize.
     :param size: The requested output size in pixels, given as a
                  (width, height) tuple.
     :param method: Resampling method to use. Default is
@@ -256,6 +257,35 @@ def contain(image, size, method=Image.Resampling.BICUBIC):
 
     if im_ratio != dest_ratio:
         if im_ratio > dest_ratio:
+            new_height = round(image.height / image.width * size[0])
+            if new_height != size[1]:
+                size = (size[0], new_height)
+        else:
+            new_width = round(image.width / image.height * size[1])
+            if new_width != size[0]:
+                size = (new_width, size[1])
+    return image.resize(size, resample=method)
+
+
+def cover(image, size, method=Image.Resampling.BICUBIC):
+    """
+    Returns a resized version of the image, so that the requested size is
+    covered, while maintaining the original aspect ratio.
+
+    :param image: The image to resize.
+    :param size: The requested output size in pixels, given as a
+                 (width, height) tuple.
+    :param method: Resampling method to use. Default is
+                   :py:attr:`~PIL.Image.Resampling.BICUBIC`.
+                   See :ref:`concept-filters`.
+    :return: An image.
+    """
+
+    im_ratio = image.width / image.height
+    dest_ratio = size[0] / size[1]
+
+    if im_ratio != dest_ratio:
+        if im_ratio < dest_ratio:
             new_height = round(image.height / image.width * size[0])
             if new_height != size[1]:
                 size = (size[0], new_height)
@@ -528,9 +558,7 @@ def invert(image):
     :param image: The image to invert.
     :return: An image.
     """
-    lut = []
-    for i in range(256):
-        lut.append(255 - i)
+    lut = list(range(255, -1, -1))
     return image.point(lut) if image.mode == "1" else _lut(image, lut)
 
 
@@ -552,10 +580,8 @@ def posterize(image, bits):
     :param bits: The number of bits to keep for each channel (1-8).
     :return: An image.
     """
-    lut = []
     mask = ~(2 ** (8 - bits) - 1)
-    for i in range(256):
-        lut.append(i & mask)
+    lut = [i & mask for i in range(256)]
     return _lut(image, lut)
 
 
@@ -564,7 +590,7 @@ def solarize(image, threshold=128):
     Invert all pixel values above a threshold.
 
     :param image: The image to solarize.
-    :param threshold: All pixels above this greyscale level are inverted.
+    :param threshold: All pixels above this grayscale level are inverted.
     :return: An image.
     """
     lut = []
@@ -576,19 +602,21 @@ def solarize(image, threshold=128):
     return _lut(image, lut)
 
 
-def exif_transpose(image):
+def exif_transpose(image, *, in_place=False):
     """
-    If an image has an EXIF Orientation tag, other than 1, return a new image
-    that is transposed accordingly. The new image will have the orientation
-    data removed.
-
-    Otherwise, return a copy of the image.
+    If an image has an EXIF Orientation tag, other than 1, transpose the image
+    accordingly, and remove the orientation data.
 
     :param image: The image to transpose.
-    :return: An image.
+    :param in_place: Boolean. Keyword-only argument.
+        If ``True``, the original image is modified in-place, and ``None`` is returned.
+        If ``False`` (default), a new :py:class:`~PIL.Image.Image` object is returned
+        with the transposition applied. If there is no transposition, a copy of the
+        image will be returned.
     """
-    exif = image.getexif()
-    orientation = exif.get(0x0112)
+    image.load()
+    image_exif = image.getexif()
+    orientation = image_exif.get(ExifTags.Base.Orientation)
     method = {
         2: Image.Transpose.FLIP_LEFT_RIGHT,
         3: Image.Transpose.ROTATE_180,
@@ -600,22 +628,28 @@ def exif_transpose(image):
     }.get(orientation)
     if method is not None:
         transposed_image = image.transpose(method)
-        transposed_exif = transposed_image.getexif()
-        if 0x0112 in transposed_exif:
-            del transposed_exif[0x0112]
-            if "exif" in transposed_image.info:
-                transposed_image.info["exif"] = transposed_exif.tobytes()
-            elif "Raw profile type exif" in transposed_image.info:
-                transposed_image.info[
-                    "Raw profile type exif"
-                ] = transposed_exif.tobytes().hex()
-            elif "XML:com.adobe.xmp" in transposed_image.info:
+        if in_place:
+            image.im = transposed_image.im
+            image.pyaccess = None
+            image._size = transposed_image._size
+        exif_image = image if in_place else transposed_image
+
+        exif = exif_image.getexif()
+        if ExifTags.Base.Orientation in exif:
+            del exif[ExifTags.Base.Orientation]
+            if "exif" in exif_image.info:
+                exif_image.info["exif"] = exif.tobytes()
+            elif "Raw profile type exif" in exif_image.info:
+                exif_image.info["Raw profile type exif"] = exif.tobytes().hex()
+            elif "XML:com.adobe.xmp" in exif_image.info:
                 for pattern in (
                     r'tiff:Orientation="([0-9])"',
                     r"<tiff:Orientation>([0-9])</tiff:Orientation>",
                 ):
-                    transposed_image.info["XML:com.adobe.xmp"] = re.sub(
-                        pattern, "", transposed_image.info["XML:com.adobe.xmp"]
+                    exif_image.info["XML:com.adobe.xmp"] = re.sub(
+                        pattern, "", exif_image.info["XML:com.adobe.xmp"]
                     )
-        return transposed_image
-    return image.copy()
+        if not in_place:
+            return transposed_image
+    elif not in_place:
+        return image.copy()

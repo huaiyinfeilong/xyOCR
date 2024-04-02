@@ -26,12 +26,16 @@
 
 有任何意见建议欢迎沟通：
 
-* 项目地址：https://github.com/huaiyinfeilong/xyocr
+* 项目地址：[https://github.com/huaiyinfeilong/xyocr](https://github.com/huaiyinfeilong/xyocr)
 * 电子邮箱：huaiyinfeilong@163.com
 * QQ：354522977
 * 微信：huaiyinfeilong
 
 ## 升级日志
+
+### Version 3.0.2
+
+* 适配NVDA 2024.1版本。
 
 ### Version 3.0.1
 

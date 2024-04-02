@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 'xyOCR' '1.0'\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
-"POT-Creation-Date: 2023-06-03 18:51+0800\n"
+"POT-Creation-Date: 2023-11-24 15:23+0800\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -15,7 +15,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.2.2\n"
+"X-Generator: Poedit 3.3.1\n"
 
 #. Translators: Settings panel title
 #. Translators: Script description
@@ -23,7 +23,7 @@ msgstr ""
 #. Translators: Summary for this add-on
 #. to be shown on installation and add-on information found in Add-ons Manager.
 #: addon\globalPlugins\xyOCR\__init__.py:26
-#: addon\globalPlugins\xyOCR\__init__.py:59 buildVars.py:23
+#: addon\globalPlugins\xyOCR\__init__.py:65 buildVars.py:23
 msgid "Xinyi OCR"
 msgstr "新翼OCR"
 
@@ -42,22 +42,27 @@ msgstr "我的应用程序key"
 msgid "My app secret"
 msgstr "我的应用程序 secret"
 
+#. Translators: Periodically refresh recognized content
+#: addon\globalPlugins\xyOCR\__init__.py:51
+msgid "Periodically refresh recognized content"
+msgstr "定期刷新识别结果"
+
 #. Translators: Choose OCR engine
-#: addon\globalPlugins\xyOCR\__init__.py:116
+#: addon\globalPlugins\xyOCR\__init__.py:122
 msgid "Switch OCR engine"
 msgstr "切换OCR引擎"
 
 #. Translators: Text recognition
-#: addon\globalPlugins\xyOCR\__init__.py:135
+#: addon\globalPlugins\xyOCR\__init__.py:141
 msgid "Text recognition"
 msgstr "文字识别"
 
 #. Translators: Recognition failed
 #. 剪贴板中既不是图片内容也不是图片文件
 #. Translators: Recognition failed
-#: addon\globalPlugins\xyOCR\__init__.py:143
-#: addon\globalPlugins\xyOCR\__init__.py:154
-#: addon\globalPlugins\xyOCR\__init__.py:180
+#: addon\globalPlugins\xyOCR\__init__.py:149
+#: addon\globalPlugins\xyOCR\__init__.py:160
+#: addon\globalPlugins\xyOCR\__init__.py:186
 #: addon\globalPlugins\xyOCR\baiduOcr.py:132
 #: addon\globalPlugins\xyOCR\baiduOcr.py:180
 #: addon\globalPlugins\xyOCR\baiduOcr.py:201
@@ -67,34 +72,35 @@ msgstr "文字识别"
 msgid "Recognition failed"
 msgstr "识别失败"
 
-#: addon\globalPlugins\xyOCR\__init__.py:148
+#: addon\globalPlugins\xyOCR\__init__.py:154
+#: addon\globalPlugins\xyOCR\__init__.py:206
 msgid "Please turn off the screen curtain before recognition"
 msgstr "识别前请关闭黑屏"
 
 #. Translators: Clipboard recognition
-#: addon\globalPlugins\xyOCR\__init__.py:158
+#: addon\globalPlugins\xyOCR\__init__.py:164
 msgid "Clipboard recognition"
 msgstr "剪贴板识别"
 
 #. Translators: Already in a content recognition result
-#: addon\globalPlugins\xyOCR\__init__.py:172
-#: addon\globalPlugins\xyOCR\__init__.py:208
+#: addon\globalPlugins\xyOCR\__init__.py:178
+#: addon\globalPlugins\xyOCR\__init__.py:219
 msgid "Already in a content recognition result"
 msgstr "现已处于内容识别结果区域"
 
 #. Translators: Recognizing
-#: addon\globalPlugins\xyOCR\__init__.py:175
-#: addon\globalPlugins\xyOCR\__init__.py:211
+#: addon\globalPlugins\xyOCR\__init__.py:181
+#: addon\globalPlugins\xyOCR\__init__.py:222
 msgid "Recognizing"
 msgstr "正在识别"
 
 #. Translators: Image description
-#: addon\globalPlugins\xyOCR\__init__.py:192
+#: addon\globalPlugins\xyOCR\__init__.py:198
 msgid "Image description"
 msgstr "图像描述"
 
 #. Translators: Clipboard image description
-#: addon\globalPlugins\xyOCR\__init__.py:201
+#: addon\globalPlugins\xyOCR\__init__.py:212
 msgid "Clipboard image description"
 msgstr "剪贴板图像描述"
 

@@ -12,6 +12,7 @@ Use PIL.__version__ for this Pillow version.
 
 ;-)
 """
+from __future__ import annotations
 
 from . import _version
 
@@ -31,7 +32,6 @@ _plugins = [
     "DdsImagePlugin",
     "EpsImagePlugin",
     "FitsImagePlugin",
-    "FitsStubImagePlugin",
     "FliImagePlugin",
     "FpxImagePlugin",
     "FtexImagePlugin",
