@@ -197,6 +197,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			self.ocr.uninitRecognizer()
 			self.ocr = None
 
+	"""
 	@scriptHandler.script(
 		# Translators: Image description
 		description=_("Image description"),
@@ -210,7 +211,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			ui.message(_("Please turn off the screen curtain before recognition"))
 			return
 		recogUi.recognizeNavigatorObject(self.imageRecognizer)
+	""""""
 
+	"""
 	@scriptHandler.script(
 		# Translators: Clipboard image description
 		description=_("Clipboard image description"),
@@ -225,6 +228,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		# Translators: Recognizing
 		ui.message(_("Recognizing"))
 		self.imageRecognizer.recognize_clipboard()
+	""""""
 
 
 class CustomRecogResultNVDAObject(recogUi.RecogResultNVDAObject):

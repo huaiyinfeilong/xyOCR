@@ -33,6 +33,10 @@ Any comments and suggestions are welcome to communicate:
 
 ## Upgrade log
 
+### Version 3.0.3
+
+* Remove the image description function.
+
 ### Version 3.0.2
 
 * Adapt to NVDA 2024.1 version.
