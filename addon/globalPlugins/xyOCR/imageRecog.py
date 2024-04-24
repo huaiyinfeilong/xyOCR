@@ -13,6 +13,7 @@ from PIL import Image, ImageGrab
 import ui
 import base64
 import threading
+import spark
 
 
 # 图片内容识别基础类
@@ -32,21 +33,7 @@ class ImageRecognizer(ContentRecognizer):
 		return json.loads(opener.open(request).read())
 
 	def _getImageDescription(self, image):
-		url = "http://8.130.94.216:6751/img_process_normal"
-		data = []
-		boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW"
-		data.append("--" + boundary)
-		data.append('Content-disposition: form-data; name="file"; filename="image.png"')
-		data.append("")
-		data.append(image)
-		data.append("--" + boundary + "--")
-		data.append("")
-		payload = b"\r\n".join(str(item).encode("utf-8") if isinstance(item, str) else item for item in data)
-		headers = {
-			"Content-type": f"multipart/form-data; boundary={boundary}"
-		}
-		response = self._http_request(url, headers, payload, "POST")
-		return response.get("msg")
+		return spark.get_recognition_image_result(image)
 
 	# 获取缩放因子
 	def getResizeFactor(self, width, height):
