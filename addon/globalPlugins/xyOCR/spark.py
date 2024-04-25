@@ -1,5 +1,6 @@
 #-*- coding=utf-8 -*-
 
+import addonHandler
 import _thread as thread
 import base64
 import datetime
@@ -11,11 +12,14 @@ import ssl
 from datetime import datetime
 from time import mktime
 from urllib.parse import urlencode
+from recogExceptions import AuthenticationException
 import os
 import sys
 sys.path.insert(0, "\\".join(os.path.dirname(__file__).split("\\")[:-1]) + "\\_py3_contrib")
 from wsgiref.handlers import format_date_time
 import websocket  # 使用websocket_client
+
+addonHandler.initTranslation()
 
 
 appid = "c7ea9162"    #填写控制台中获取的 APPID 信息
@@ -195,6 +199,9 @@ def get_recognition_image_result(image_data):
 	global imagedata
 	imagedata = image_data
 	question = checklen(getText("user", "概要的描述下这张图片"))
+	if not appid or not api_secret or not api_key:
+     # Translators: authencation empty
+		raise AuthenticationException(_("Please setup Ifly image understanding API key first"))
 	main(appid, api_key, api_secret, imageunderstanding_url, question)
 	return answer
 

@@ -23,7 +23,7 @@
     ],
 	"python.defaultInterpreterPath": "../nvda/.venv/scripts/python.exe",
 	"[python]": {
-		"editor.defaultFormatter": "ms-python.python"
+		"editor.defaultFormatter": "ms-python.black-formatter"
 	},
 	"python.formatting.provider": "none"
 }

@@ -33,6 +33,11 @@ Any comments and suggestions are welcome to communicate:
 
 ## Upgrade log
 
+### Version 3.1.0
+
+* Added image description feature, supporting iFly image understanding API.
+* Optimized configuration interface and parameters. Users who use personal Baidu OCR keys need to manually re-enter their Baidu OCR key after installing this version.
+
 ### Version 3.0.3
 
 * Remove the image description function.

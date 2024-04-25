@@ -21,7 +21,7 @@ addonHandler.initTranslation()
 
 
 # 配置面板
-class XinyiOcrSettingsPanel(gui.SettingsPanel):
+class XinyiOcrSettingsPanel(gui.settingsDialogs.SettingsPanel):
 	# Translators: Settings panel title
 	title = _("Xinyi OCR")
 

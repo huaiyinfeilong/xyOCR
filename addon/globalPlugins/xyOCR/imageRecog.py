@@ -1,11 +1,13 @@
 # coding=utf-8
 
+from logHandler import log
 import config
 from contentRecog import ContentRecognizer
 from . import helper
 import urllib.request
 import urllib.parse
 import json
+from recogExceptions import AuthenticationException
 import os
 import sys
 sys.path.insert(0, "\\".join(os.path.dirname(__file__).split("\\")[:-1]) + "\\_py3_contrib")
@@ -69,8 +71,15 @@ class ImageRecognizer(ContentRecognizer):
 		from io import BytesIO
 		output = BytesIO()
 		image.save(output, "png")
-		result = self._getImageDescription(output.getvalue())
-		ui.message(result)
+		result = ""
+		try:
+				result = self._getImageDescription(output.getvalue())
+		except AuthenticationException as e:
+			result = str(e)
+		except:
+			result = _("Recognition failed")
+		finally:
+			ui.message(result)
 
 	# 剪贴板图片内容识别
 	def recognize_clipboard(self):
@@ -101,8 +110,16 @@ class ImageRecognizer(ContentRecognizer):
 		from io import BytesIO
 		output = BytesIO()
 		image.save(output, "png")
-		result = self._getImageDescription(output.getvalue())
-		ui.message(result)
+		result = ""
+		try:
+			result = self._getImageDescription(output.getvalue())
+			log.warn(result)
+		except AuthenticationException as e:
+			result = str(e)
+		except:
+			result = _("Recognition failed")
+		finally:
+			ui.message(result)
 
 	def cancel(self):
 		# 什么也不做
