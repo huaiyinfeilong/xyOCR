@@ -1,5 +1,6 @@
 # coding=utf-8
 
+import config
 from contentRecog import ContentRecognizer
 from . import helper
 import urllib.request
@@ -33,6 +34,12 @@ class ImageRecognizer(ContentRecognizer):
 		return json.loads(opener.open(request).read())
 
 	def _getImageDescription(self, image):
+		# Update authentication configuration
+		spark.updateAuthenticationConfiguration(
+			config.conf["xinyiOcr"]["IDG"]["spark"]["appId"],
+			config.conf["xinyiOcr"]["IDG"]["spark"]["apiSecret"],
+			config.conf["xinyiOcr"]["IDG"]["spark"]["apiKey"]
+		)
 		return spark.get_recognition_image_result(image)
 
 	# 获取缩放因子

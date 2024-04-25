@@ -18,9 +18,9 @@ from wsgiref.handlers import format_date_time
 import websocket  # 使用websocket_client
 
 
-appid = ""    #填写控制台中获取的 APPID 信息
-api_secret = ""   #填写控制台中获取的 APISecret 信息
-api_key =""    #填写控制台中获取的 APIKey 信息
+appid = "c7ea9162"    #填写控制台中获取的 APPID 信息
+api_secret = "YzA5NGNmMmIwZjQyZjlmYWU0OTUzZjIw"   #填写控制台中获取的 APISecret 信息
+api_key ="0046410f91029cfdabdcf74c73ae6e5e"    #填写控制台中获取的 APIKey 信息
 imagedata = None
 
 
@@ -197,3 +197,19 @@ def get_recognition_image_result(image_data):
 	question = checklen(getText("user", "概要的描述下这张图片"))
 	main(appid, api_key, api_secret, imageunderstanding_url, question)
 	return answer
+
+
+def updateAuthenticationConfiguration(appId, apiSecret, apiKey):
+	"""
+	Update authentication configuration
+
+	@param appId: APP ID
+	@param appSecret: API secret
+	@param apiKey: API key
+	"""
+	global app_id
+	app_id = appId
+	global api_secret
+	api_secret = apiSecret
+	global api_key
+	api_key = apiKey

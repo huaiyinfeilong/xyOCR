@@ -27,40 +27,75 @@ class XinyiOcrSettingsPanel(gui.SettingsPanel):
 
 	def makeSettings(self, sizer):
 		helper = gui.guiHelper.BoxSizerHelper(self, sizer=sizer)
+		# Translators: the label for groupbox of Baidu OCR
+		ocrGroupLabel = _("Baidu OCR")
+		ocrGroupSizer = wx.StaticBoxSizer(wx.HORIZONTAL, self, ocrGroupLabel)
+		ocrGroupBox = ocrGroupSizer.GetStaticBox()
+		ocrGroup = gui.guiHelper.BoxSizerHelper(ocrGroupBox, sizer=ocrGroupSizer)
+		helper.addItem(ocrGroup)
 		# Translators: The label for using share key checkbox
-		using_share_key_label = _("Using share key")
-		self.usingShareKeyCheckBox = helper.addItem(
-			wx.CheckBox(self, label=_(using_share_key_label))
+		usingOcrShareKeyLabel = _("Using share key")
+		self.usingOcrShareKeyCheckBox = ocrGroup.addItem(
+			wx.CheckBox(ocrGroupBox, label=_(usingOcrShareKeyLabel))
 		)
-		self.usingShareKeyCheckBox.SetValue(config.conf["xinyiOcr"]["baidu"]["usingShareKey"])
+		self.usingOcrShareKeyCheckBox.SetValue(config.conf["xinyiOcr"]["OCR"]["baidu"]["usingShareKey"])
 		# Translators: The label for my APP key textbox
-		my_app_key_label = _("My app key")
-		self.myAppKeyTextCtrl = helper.addLabeledControl(
-			_(my_app_key_label),
+		myOcrAppKeyLabel = _("My app key")
+		self.myOcrAppKeyTextCtrl = ocrGroup.addLabeledControl(
+			_(myOcrAppKeyLabel),
 			wx.TextCtrl,
 		)
-		self.myAppKeyTextCtrl.SetValue(config.conf["xinyiOcr"]["baidu"]["myAppKey"])
+		self.myOcrAppKeyTextCtrl.SetValue(config.conf["xinyiOcr"]["OCR"]["baidu"]["myAppKey"])
 		# Translators: The label for my APP secret textbox
-		my_app_secret_label = _("My app secret")
-		self.myAppSecretTextCtrl = helper.addLabeledControl(
-			_(my_app_secret_label),
+		myOcrAppSecretLabel = _("My app secret")
+		self.myOcrAppSecretTextCtrl = ocrGroup.addLabeledControl(
+			_(myOcrAppSecretLabel),
 			wx.TextCtrl,
 		)
-		self.myAppSecretTextCtrl.SetValue(config.conf["xinyiOcr"]["baidu"]["myAppSecret"])
+		self.myOcrAppSecretTextCtrl.SetValue(config.conf["xinyiOcr"]["OCR"]["baidu"]["myAppSecret"])
 		# Translators: Periodically refresh recognized content
-		auto_refresh_label = _("Periodically refresh recognized content")
-		self.autoRefreshCheckBox = helper.addItem(
-			wx.CheckBox(self, label=_(auto_refresh_label))
+		autoOcrRefreshLabel = _("Periodically refresh recognized content")
+		self.autoOcrRefreshCheckBox = ocrGroup.addItem(
+			wx.CheckBox(ocrGroupBox, label=_(autoOcrRefreshLabel))
 		)
-		self.autoRefreshCheckBox.SetValue(config.conf["xinyiOcr"]["autoRefresh"])
+		self.autoOcrRefreshCheckBox.SetValue(config.conf["xinyiOcr"]["OCR"]["autoRefresh"])
+		# Translators: the label for groupbox of image description generation
+		idgGroupLabel = _("Ifly image understanding")
+		idgGroupSizer = wx.StaticBoxSizer(wx.HORIZONTAL, self, idgGroupLabel)
+		idgGroupBox = idgGroupSizer.GetStaticBox()
+		idgGroup = gui.guiHelper.BoxSizerHelper(idgGroupBox, sizer=idgGroupSizer)
+		helper.addItem(idgGroup)
+		# Translators: The label for APP ID textbox
+		myIdgAppIdLabel = _("My APP ID")
+		self.myIdgAppIdTextCtrl = idgGroup.addLabeledControl(
+			_(myIdgAppIdLabel),
+			wx.TextCtrl,
+		)
+		self.myIdgAppIdTextCtrl.SetValue(config.conf["xinyiOcr"]["IDG"]["spark"]["appId"])
+		# Translators: The label for API secret textbox
+		myIdgApiSecretLabel = _("My API secret")
+		self.myIdgApiSecretTextCtrl = idgGroup.addLabeledControl(
+			_(myIdgApiSecretLabel),
+			wx.TextCtrl,
+		)
+		self.myIdgApiSecretTextCtrl.SetValue(config.conf["xinyiOcr"]["IDG"]["spark"]["apiSecret"])
+		# Translators: The label for API key textbox
+		myIdgApiKeyLabel = _("My API key")
+		self.myIdgApiKeyTextCtrl = idgGroup.addLabeledControl(
+			_(myIdgApiKeyLabel),
+			wx.TextCtrl,
+		)
+		self.myIdgApiKeyTextCtrl.SetValue(config.conf["xinyiOcr"]["IDG"]["spark"]["apiKey"])
 
 	def onSave(self):
 		# 保存配置
-		config.conf["xinyiOcr"]["baidu"]["usingShareKey"] = self.usingShareKeyCheckBox.IsChecked()
-		config.conf["xinyiOcr"]["baidu"]["myAppKey"] = self.myAppKeyTextCtrl.GetValue()
-		config.conf["xinyiOcr"]["baidu"]["myAppSecret"] = self.myAppSecretTextCtrl.GetValue()
-		config.conf["xinyiOcr"]["autoRefresh"] = self.autoRefreshCheckBox.IsChecked()
-
+		config.conf["xinyiOcr"]["OCR"]["baidu"]["usingShareKey"] = self.usingOcrShareKeyCheckBox.IsChecked()
+		config.conf["xinyiOcr"]["OCR"]["baidu"]["myAppKey"] = self.myOcrAppKeyTextCtrl.GetValue()
+		config.conf["xinyiOcr"]["OCR"]["baidu"]["myAppSecret"] = self.myOcrAppSecretTextCtrl.GetValue()
+		config.conf["xinyiOcr"]["OCR"]["autoRefresh"] = self.autoOcrRefreshCheckBox.IsChecked()
+		config.conf["xinyiOcr"]["IDG"]["spark"]["appId"] = self.myIdgAppIdTextCtrl.GetValue()
+		config.conf["xinyiOcr"]["IDG"]["spark"]["apiSecret"] = self.myIdgApiSecretTextCtrl.GetValue()
+		config.conf["xinyiOcr"]["IDG"]["spark"]["apiKey"] = self.myIdgApiKeyTextCtrl.GetValue()
 
 # Translators: Script description
 CATEGORY_NAME = _("Xinyi OCR")
@@ -86,15 +121,25 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		super(globalPluginHandler.GlobalPlugin, self).__init__()
 		# 初始化配置
 		confspec = {
-			"engine": "integer(default=0)",
-			"baidu": {
-				"usingShareKey": "boolean(default=True)",
-				"shareAppKey": "string(default='QQbo1PCfCxh51snrOw0xVpzp')",
-				"shareAppSecret": "string(default='91CTiEsiET4KKN5LrhT6MGS3fCjGSkS1')",
-				"myAppKey": "string(default='')",
-				"myAppSecret": "string(default='')"
+			"OCR": {
+				"engine": "integer(default=0)",
+				"baidu": {
+					"usingShareKey": "boolean(default=True)",
+					"shareAppKey": "string(default='QQbo1PCfCxh51snrOw0xVpzp')",
+					"shareAppSecret": "string(default='91CTiEsiET4KKN5LrhT6MGS3fCjGSkS1')",
+					"myAppKey": "string(default='')",
+					"myAppSecret": "string(default='')"
+				},
+				"autoRefresh": "boolean(default=False)"
 			},
-			"autoRefresh": "boolean(default=False)"
+			"IDG": {
+				"engine": "integer(default=0)",
+				"spark": {
+				"appId": "string(default='')",
+				"apiSecret": "string(default='')",
+				"apiKey": "string(default='')"
+			},
+			}
 		}
 		config.conf.spec["xinyiOcr"] = confspec
 		gui.settingsDialogs.NVDASettingsDialog.categoryClasses.append(XinyiOcrSettingsPanel)
@@ -112,8 +157,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 					self.ocr_list.remove(ocr)
 					continue
 			# 配置文件中的引擎索引若大于实际索引范围，则设置引擎索引为0，这种超出情况可能出现于拷贝用户配置到另一台不支持x64环境的机器中运行
-			index = config.conf["xinyiOcr"]["engine"] \
-			if config.conf["xinyiOcr"]["engine"] < len(self.ocr_list) else 0
+			index = config.conf["xinyiOcr"]["OCR"]["engine"] \
+			if config.conf["xinyiOcr"]["OCR"]["engine"] < len(self.ocr_list) else 0
 			self.ocr = self.ocr_list[index]
 		except Exception as e:
 			log.debug(f"初始化失败：\n{e}")
@@ -133,7 +178,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		# 获取当前OCR对象在列表中的索引下标
 		index = [ocr.name for ocr in self.ocr_list].index(current_ocr_name)
 		index = (index + count + 1) % count
-		config.conf["xinyiOcr"]["engine"] = index
+		config.conf["xinyiOcr"]["OCR"]["engine"] = index
 		self.ocr = self.ocr_list[index]
 		current_ocr_name = self.ocr.name
 		ui.message(_(current_ocr_name))
