@@ -14,7 +14,7 @@ import wx
 from .paddleOcr import PaddleOcr
 from .baiduOcr import BaiduGeneralOcr, BaiduAccurateOcr
 from .util import is64ProcessorArchitecture
-from .imageRecog import ImageRecognizer
+from sparkImageRecog import SparkImageRecognizer
 
 
 addonHandler.initTranslation()
@@ -102,7 +102,7 @@ CATEGORY_NAME = _("Xinyi OCR")
 
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
-	imageRecognizer = ImageRecognizer()
+	imageRecognizer = SparkImageRecognizer()
 	ocr_list = []
 	ocr = None
 	thread = None

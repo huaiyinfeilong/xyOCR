@@ -3,7 +3,7 @@
 from logHandler import log
 import config
 from contentRecog import ContentRecognizer
-from . import helper
+import helper
 import urllib.request
 import urllib.parse
 import json
@@ -16,7 +16,6 @@ from PIL import Image, ImageGrab
 import ui
 import base64
 import threading
-import spark
 
 
 # 图片内容识别基础类
@@ -35,14 +34,8 @@ class ImageRecognizer(ContentRecognizer):
 		request = urllib.request.Request(url=url, headers=headers, data=payload, method=method)
 		return json.loads(opener.open(request).read())
 
-	def _getImageDescription(self, image):
-		# Update authentication configuration
-		spark.updateAuthenticationConfiguration(
-			config.conf["xinyiOcr"]["IDG"]["spark"]["appId"],
-			config.conf["xinyiOcr"]["IDG"]["spark"]["apiSecret"],
-			config.conf["xinyiOcr"]["IDG"]["spark"]["apiKey"]
-		)
-		return spark.get_recognition_image_result(image)
+	def _getImageDescription(self, imageData):
+		raise Exception("基类中的此方法不可调用，必须在子类中实现此方法。")
 
 	# 获取缩放因子
 	def getResizeFactor(self, width, height):
