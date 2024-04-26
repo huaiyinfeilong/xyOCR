@@ -102,11 +102,6 @@ CATEGORY_NAME = _("Xinyi OCR")
 
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
-	imageRecognizer = SparkImageRecognizer()
-	ocr_list = []
-	ocr = None
-	thread = None
-
 	# 检测穆连平是否开启
 	def isScreenCurtainRunning(self):
 		import vision
@@ -143,6 +138,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		}
 		config.conf.spec["xinyiOcr"] = confspec
 		gui.settingsDialogs.NVDASettingsDialog.categoryClasses.append(XinyiOcrSettingsPanel)
+		self.ocr_list = []
 		try:
 			if is64ProcessorArchitecture():
 				self.ocr_list.append(PaddleOcr())
@@ -153,7 +149,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 					ocr.initRecognizer()
 				except Exception as e:
 					# 初始化引擎失败，从引擎列表中移除有问题的引擎，并继续初始化后续引擎
-					log.debug(f"初始化OCR引擎失败：{e}")
+					log.error(f"初始化OCR引擎失败：{str(e)}")
 					self.ocr_list.remove(ocr)
 					continue
 			# 配置文件中的引擎索引若大于实际索引范围，则设置引擎索引为0，这种超出情况可能出现于拷贝用户配置到另一台不支持x64环境的机器中运行
@@ -161,8 +157,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			if config.conf["xinyiOcr"]["OCR"]["engine"] < len(self.ocr_list) else 0
 			self.ocr = self.ocr_list[index]
 		except Exception as e:
-			log.debug(f"初始化失败：\n{e}")
+			log.error(f"初始化失败：{str(e)}")
 			self.ocr = None
+		# 初始化图片识别引擎
+		try:
+			self.imageRecognizer = SparkImageRecognizer()
+		except Exception as e:
+			log.error(f"初始化图片识别引擎失败：{str(e)}")
 
 	@scriptHandler.script(
 		# Translators: Choose OCR engine
@@ -254,6 +255,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			log.debug("幕帘屏处于开启状态，无法进行识别。")
 			ui.message(_("Please turn off the screen curtain before recognition"))
 			return
+		if self.imageRecognizer is None:
+			ui.message(_("Recognition failed"))
+			return
 		recogUi.recognizeNavigatorObject(self.imageRecognizer)
 
 	@scriptHandler.script(
@@ -269,6 +273,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			return
 		# Translators: Recognizing
 		ui.message(_("Recognizing"))
+		if self.imageRecognizer is None:
+			ui.message(_("Recognition failed"))
+			return
 		self.imageRecognizer.recognize_clipboard()
 
 

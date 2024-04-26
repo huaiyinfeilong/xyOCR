@@ -5,6 +5,7 @@
 """
 
 
+from logHandler import log
 import config
 import imageRecog
 import addonHandler
@@ -76,31 +77,43 @@ class SparkImageRecognizer(imageRecog.ImageRecognizer):
 	imageUnderstandingUrl = "wss://spark-api.cn-huabei-1.xf-yun.com/v2.1/image"  # 云端环境的服务地址
 
 	def __init__(self, *args, **kwargs):
+		self.appId = ""
+		self.apiSecret = ""
+		self.apiKey = ""
+		self.answer = ""
+		self.imageData = None
+		self.text = []
 		# Update authentication configuration
 		self.updateAuthenticationConfiguration(
 			config.conf["xinyiOcr"]["IDG"]["spark"]["appId"],
 			config.conf["xinyiOcr"]["IDG"]["spark"]["apiSecret"],
 			config.conf["xinyiOcr"]["IDG"]["spark"]["apiKey"]
 		)
+		log.info("【讯飞图片识别】构造函数执行完成")
 
 	# 收到websocket错误的处理
 	def on_error(self, ws, error):
+		log.info(f"【讯飞图片识别】WebSocket传输收到错误：{error}")
 		raise ImageRecognitionException(error)
 
 	# 收到websocket关闭的处理
 	def on_close(self, ws, one, two):
+		log.info("【讯飞图片识别】WebSocket关闭")
 		pass
 
 	# 收到websocket连接建立的处理
 	def on_open(self, ws):
+		log.info("【讯飞图片识别】处理收到的WebSocket连接")
 		thread.start_new_thread(self.run, (ws,))
 
 	def run(self, ws, *args):
+		log.info("【讯飞图片识别】处理WebSocket接收到的数据")
 		data = json.dumps(self.gen_params(appId=ws.appId, question=ws.question))
-		self.ws.send(data)
+		ws.send(data)
 
 	# 收到websocket消息的处理
 	def on_message(self, ws, message):
+		log.info("【讯飞图片识别】收到websocket消息的处理")
 		data = json.loads(message)
 		code = data['header']['code']
 		if code != 0:
@@ -110,12 +123,12 @@ class SparkImageRecognizer(imageRecog.ImageRecognizer):
 			choices = data["payload"]["choices"]
 			status = choices["status"]
 			content = choices["text"][0]["content"]
-			self.answer = ""
-			answer += content
+			self.answer += content
 			if status == 2:
 				ws.close()
 
 	def gen_params(self, appId, question):
+		log.info("【讯飞图片识别】生成请求问题")
 		"""
 		通过appId和用户的提问来生成请求参数
 		"""
@@ -141,39 +154,51 @@ class SparkImageRecognizer(imageRecog.ImageRecognizer):
 		return data
 
 	def _getImageDescription(self, imageData):
+		log.info("【讯飞图片识别】执行图片识别")
+		log.info("【讯飞图片识别】获取API密钥")
 		# Update authentication configuration
 		self.updateAuthenticationConfiguration(
 			config.conf["xinyiOcr"]["IDG"]["spark"]["appId"],
 			config.conf["xinyiOcr"]["IDG"]["spark"]["apiSecret"],
 			config.conf["xinyiOcr"]["IDG"]["spark"]["apiKey"]
 		)
+		self.answer = ""
+		self.imageData = imageData
 		question = self.checklen(self.getText("user", "概要的描述下这张图片"))
+		log.info(f"【讯飞图片识别】构造请求问题完成，问题：{question}")
 		if not self.appId or not self.apiSecret or not self.apiKey:
 		# Translators: authencation empty
+			log.info("【讯飞图片识别】API密钥为空")
 			raise AuthenticationException(_("Please setup Ifly image understanding API key first"))
 
-		wsParam = Ws_Param(self.appId, self.apiKey, self.apiSecret, SparkImageRecognizer.imageUnderstandingUrl)
-		websocket.enableTrace(False)
-		wsUrl = wsParam.create_url()
-		ws = websocket.WebSocketApp(
-			wsUrl,
-			on_message=self.on_message,
-			on_error=self.on_error,
-			on_close=self.on_close,
-			on_open=self.on_open)
-		ws.appId = self.appId
-		self.imageData = imageData
-		ws.imageData = imageData
-		ws.question = ""
-		ws.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
+		try:
+			wsParam = Ws_Param(self.appId, self.apiKey, self.apiSecret, SparkImageRecognizer.imageUnderstandingUrl)
+			websocket.enableTrace(False)
+			wsUrl = wsParam.createUrl()
+			ws = websocket.WebSocketApp(
+				wsUrl,
+				on_message=self.on_message,
+				on_error=self.on_error,
+				on_close=self.on_close,
+				on_open=self.on_open)
+			ws.appId = self.appId
+			ws.imageData = imageData
+			ws.question = question
+			ws.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
+		except Exception as e:
+			log.error(f"【讯飞图片识别】请求API出错：{str(e)}")
+			return None
+		self.getText("assistant", self.answer)
+		log.info(f"【讯飞图片识别】识别结果：{self.answer}")
+		return self.answer
 
 	def getText(self, role, content):
-		text = [{"role": "user", "content": str(base64.b64encode(self.imageData), 'utf-8'), "content_type":"image"}]
+		self.text = [{"role": "user", "content": str(base64.b64encode(self.imageData), 'utf-8'), "content_type":"image"}]
 		jsoncon = {}
 		jsoncon["role"] = role
 		jsoncon["content"] = content
-		text.append(jsoncon)
-		return text
+		self.text.append(jsoncon)
+		return self.text
 
 	def getlength(self, text):
 		length = 0
@@ -195,6 +220,6 @@ Update authentication configuration
 		@param appSecret: API secret
 		@param apiKey: API key
 		"""
-		self.app_id = appId
-		self.api_secret = apiSecret
-		self.api_key = apiKey
+		self.appId = appId
+		self.apiSecret = apiSecret
+		self.apiKey = apiKey
