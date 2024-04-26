@@ -89,31 +89,31 @@ class SparkImageRecognizer(imageRecog.ImageRecognizer):
 			config.conf["xinyiOcr"]["IDG"]["spark"]["apiSecret"],
 			config.conf["xinyiOcr"]["IDG"]["spark"]["apiKey"]
 		)
-		log.info("【讯飞图片识别】构造函数执行完成")
+		log.debug("【讯飞图片识别】构造函数执行完成")
 
 	# 收到websocket错误的处理
 	def on_error(self, ws, error):
-		log.info(f"【讯飞图片识别】WebSocket传输收到错误：{error}")
+		log.debug(f"【讯飞图片识别】WebSocket传输收到错误：{error}")
 		raise ImageRecognitionException(error)
 
 	# 收到websocket关闭的处理
 	def on_close(self, ws, one, two):
-		log.info("【讯飞图片识别】WebSocket关闭")
+		log.debug("【讯飞图片识别】WebSocket关闭")
 		pass
 
 	# 收到websocket连接建立的处理
 	def on_open(self, ws):
-		log.info("【讯飞图片识别】处理收到的WebSocket连接")
+		log.debug("【讯飞图片识别】处理收到的WebSocket连接")
 		thread.start_new_thread(self.run, (ws,))
 
 	def run(self, ws, *args):
-		log.info("【讯飞图片识别】处理WebSocket接收到的数据")
+		log.debug("【讯飞图片识别】处理WebSocket接收到的数据")
 		data = json.dumps(self.gen_params(appId=ws.appId, question=ws.question))
 		ws.send(data)
 
 	# 收到websocket消息的处理
 	def on_message(self, ws, message):
-		log.info("【讯飞图片识别】收到websocket消息的处理")
+		log.debug("【讯飞图片识别】收到websocket消息的处理")
 		data = json.loads(message)
 		code = data['header']['code']
 		if code != 0:
@@ -128,7 +128,7 @@ class SparkImageRecognizer(imageRecog.ImageRecognizer):
 				ws.close()
 
 	def gen_params(self, appId, question):
-		log.info("【讯飞图片识别】生成请求问题")
+		log.debug("【讯飞图片识别】生成请求问题")
 		"""
 		通过appId和用户的提问来生成请求参数
 		"""
@@ -154,8 +154,8 @@ class SparkImageRecognizer(imageRecog.ImageRecognizer):
 		return data
 
 	def _getImageDescription(self, imageData):
-		log.info("【讯飞图片识别】执行图片识别")
-		log.info("【讯飞图片识别】获取API密钥")
+		log.debug("【讯飞图片识别】执行图片识别")
+		log.debug("【讯飞图片识别】获取API密钥")
 		# Update authentication configuration
 		self.updateAuthenticationConfiguration(
 			config.conf["xinyiOcr"]["IDG"]["spark"]["appId"],
@@ -165,10 +165,9 @@ class SparkImageRecognizer(imageRecog.ImageRecognizer):
 		self.answer = ""
 		self.imageData = imageData
 		question = self.checklen(self.getText("user", "概要的描述下这张图片"))
-		log.info(f"【讯飞图片识别】构造请求问题完成，问题：{question}")
 		if not self.appId or not self.apiSecret or not self.apiKey:
 		# Translators: authencation empty
-			log.info("【讯飞图片识别】API密钥为空")
+			log.debug("【讯飞图片识别】API密钥为空")
 			raise AuthenticationException(_("Please setup Ifly image understanding API key first"))
 
 		try:
@@ -189,7 +188,7 @@ class SparkImageRecognizer(imageRecog.ImageRecognizer):
 			log.error(f"【讯飞图片识别】请求API出错：{str(e)}")
 			return None
 		self.getText("assistant", self.answer)
-		log.info(f"【讯飞图片识别】识别结果：{self.answer}")
+		log.debug(f"【讯飞图片识别】识别结果：{self.answer}")
 		return self.answer
 
 	def getText(self, role, content):
