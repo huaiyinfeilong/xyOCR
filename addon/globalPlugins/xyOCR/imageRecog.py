@@ -1,10 +1,13 @@
 # coding=utf-8
 
+from logHandler import log
+import config
 from contentRecog import ContentRecognizer
-from . import helper
+import helper
 import urllib.request
 import urllib.parse
 import json
+from recogExceptions import AuthenticationException
 import os
 import sys
 sys.path.insert(0, "\\".join(os.path.dirname(__file__).split("\\")[:-1]) + "\\_py3_contrib")
@@ -31,22 +34,8 @@ class ImageRecognizer(ContentRecognizer):
 		request = urllib.request.Request(url=url, headers=headers, data=payload, method=method)
 		return json.loads(opener.open(request).read())
 
-	def _getImageDescription(self, image):
-		url = "http://8.130.94.216:6751/img_process_normal"
-		data = []
-		boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW"
-		data.append("--" + boundary)
-		data.append('Content-disposition: form-data; name="file"; filename="image.png"')
-		data.append("")
-		data.append(image)
-		data.append("--" + boundary + "--")
-		data.append("")
-		payload = b"\r\n".join(str(item).encode("utf-8") if isinstance(item, str) else item for item in data)
-		headers = {
-			"Content-type": f"multipart/form-data; boundary={boundary}"
-		}
-		response = self._http_request(url, headers, payload, "POST")
-		return response.get("msg")
+	def _getImageDescription(self, imageData):
+		raise Exception("基类中的此方法不可调用，必须在子类中实现此方法。")
 
 	# 获取缩放因子
 	def getResizeFactor(self, width, height):
@@ -75,8 +64,15 @@ class ImageRecognizer(ContentRecognizer):
 		from io import BytesIO
 		output = BytesIO()
 		image.save(output, "png")
-		result = self._getImageDescription(output.getvalue())
-		ui.message(result)
+		result = ""
+		try:
+				result = self._getImageDescription(output.getvalue())
+		except AuthenticationException as e:
+			result = str(e)
+		except:
+			result = _("Recognition failed")
+		finally:
+			ui.message(result)
 
 	# 剪贴板图片内容识别
 	def recognize_clipboard(self):
@@ -107,8 +103,16 @@ class ImageRecognizer(ContentRecognizer):
 		from io import BytesIO
 		output = BytesIO()
 		image.save(output, "png")
-		result = self._getImageDescription(output.getvalue())
-		ui.message(result)
+		result = ""
+		try:
+			result = self._getImageDescription(output.getvalue())
+			log.warn(result)
+		except AuthenticationException as e:
+			result = str(e)
+		except:
+			result = _("Recognition failed")
+		finally:
+			ui.message(result)
 
 	def cancel(self):
 		# 什么也不做

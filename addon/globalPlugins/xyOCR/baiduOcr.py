@@ -43,10 +43,10 @@ class BaiduOcr(ocr.Ocr):
 	def _fetch_access_token(self):
 		self._access_token = ""
 		# 获取app key和app secret
-		self._app_key = config.conf["xinyiOcr"]["baidu"]["shareAppKey"] \
-		if config.conf["xinyiOcr"]["baidu"]["usingShareKey"] else config.conf["xinyiOcr"]["baidu"]["myAppKey"]
-		self._app_secret = config.conf["xinyiOcr"]["baidu"]["shareAppSecret"] \
-		if config.conf["xinyiOcr"]["baidu"]["usingShareKey"] else config.conf["xinyiOcr"]["baidu"]["myAppSecret"]
+		self._app_key = config.conf["xinyiOcr"]["OCR"]["baidu"]["shareAppKey"] \
+		if config.conf["xinyiOcr"]["OCR"]["baidu"]["usingShareKey"] else config.conf["xinyiOcr"]["OCR"]["baidu"]["myAppKey"]
+		self._app_secret = config.conf["xinyiOcr"]["OCR"]["baidu"]["shareAppSecret"] \
+		if config.conf["xinyiOcr"]["OCR"]["baidu"]["usingShareKey"] else config.conf["xinyiOcr"]["OCR"]["baidu"]["myAppSecret"]
 		# 获取access_token的URL
 		url = "https://aip.baidubce.com/oauth/2.0/token" \
 		"?grant_type=client_credentials" \
@@ -158,10 +158,10 @@ class BaiduOcr(ocr.Ocr):
 				# 获取access_token
 				self._fetch_access_token()
 			# 判断是否用户更换了app key和app secret，如果配置中的参数与当前self._app_key和self._app_secret不一致，则说明用户做了更换操作
-			app_key = config.conf["xinyiOcr"]["baidu"]["shareAppKey"] \
-			if config.conf["xinyiOcr"]["baidu"]["usingShareKey"] else config.conf["xinyiOcr"]["baidu"]["myAppKey"]
-			app_secret = config.conf["xinyiOcr"]["baidu"]["shareAppSecret"] \
-			if config.conf["xinyiOcr"]["baidu"]["usingShareKey"] else config.conf["xinyiOcr"]["baidu"]["myAppSecret"]
+			app_key = config.conf["xinyiOcr"]["OCR"]["baidu"]["shareAppKey"] \
+			if config.conf["xinyiOcr"]["OCR"]["baidu"]["usingShareKey"] else config.conf["xinyiOcr"]["OCR"]["baidu"]["myAppKey"]
+			app_secret = config.conf["xinyiOcr"]["OCR"]["baidu"]["shareAppSecret"] \
+			if config.conf["xinyiOcr"]["OCR"]["baidu"]["usingShareKey"] else config.conf["xinyiOcr"]["OCR"]["baidu"]["myAppSecret"]
 			if app_key != self._app_key or app_secret != self._app_secret:
 				self._fetch_access_token()
 			if not self._access_token or not pixels or not image_info or not on_result:
