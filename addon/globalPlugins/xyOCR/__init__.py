@@ -86,6 +86,13 @@ class XinyiOcrSettingsPanel(gui.settingsDialogs.SettingsPanel):
 			wx.TextCtrl,
 		)
 		self.myIdgApiKeyTextCtrl.SetValue(config.conf["xinyiOcr"]["IDG"]["spark"]["apiKey"])
+		# Translators: The label for prompt textbox
+		myIdgPromptLabel = _("Prompt Words (Leave blank to use default. Prompt words can personalize the control of image recognition results)")
+		self.myIdgPromptTextCtrl = idgGroup.addLabeledControl(
+			_(myIdgPromptLabel),
+			wx.TextCtrl,
+		)
+		self.myIdgPromptTextCtrl.SetValue(config.conf["xinyiOcr"]["IDG"]["prompt"])
 
 	def onSave(self):
 		# 保存配置
@@ -96,6 +103,7 @@ class XinyiOcrSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		config.conf["xinyiOcr"]["IDG"]["spark"]["appId"] = self.myIdgAppIdTextCtrl.GetValue()
 		config.conf["xinyiOcr"]["IDG"]["spark"]["apiSecret"] = self.myIdgApiSecretTextCtrl.GetValue()
 		config.conf["xinyiOcr"]["IDG"]["spark"]["apiKey"] = self.myIdgApiKeyTextCtrl.GetValue()
+		config.conf["xinyiOcr"]["IDG"]["prompt"] = self.myIdgPromptTextCtrl.GetValue()
 
 # Translators: Script description
 CATEGORY_NAME = _("Xinyi OCR")
@@ -128,6 +136,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 				"autoRefresh": "boolean(default=False)"
 			},
 			"IDG": {
+			"prompt": "string(default='')",
 				"engine": "integer(default=0)",
 				"spark": {
 				"appId": "string(default='')",

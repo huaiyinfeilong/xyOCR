@@ -23,6 +23,14 @@ class ImageRecognizer(ContentRecognizer):
 	# 图片识别线程对象
 	thread = None
 
+	# 获取prompt提示词
+	def _getPrompt(self):
+		prompt = config.conf["xinyiOcr"]["IDG"]["prompt"]
+		if prompt == "":
+			# Translators: default prompt
+			prompt = _("Please describe the content in the picture for me. You do not need to describe anything you are unsure about. Your description should be objective, accurate, and logical.")
+		return prompt
+
 	# 网络请求封装
 	def _http_request(self, url=None, headers=None, payload=None, method=None):
 		if not url or not method:

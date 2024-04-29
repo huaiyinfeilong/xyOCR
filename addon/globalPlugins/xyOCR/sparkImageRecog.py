@@ -164,7 +164,7 @@ class SparkImageRecognizer(imageRecog.ImageRecognizer):
 		)
 		self.answer = ""
 		self.imageData = imageData
-		question = self.checklen(self.getText("user", "概要的描述下这张图片"))
+		question = self.checklen(self.getText("user", _(self._getPrompt())))
 		if not self.appId or not self.apiSecret or not self.apiKey:
 		# Translators: authencation empty
 			log.debug("【讯飞图片识别】API密钥为空")
