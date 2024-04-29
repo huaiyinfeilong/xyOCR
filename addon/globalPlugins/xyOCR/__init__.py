@@ -160,6 +160,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			log.error(f"初始化失败：{str(e)}")
 			self.ocr = None
 		# 初始化图片识别引擎
+		self.thread = None
 		try:
 			self.imageRecognizer = SparkImageRecognizer()
 		except Exception as e:
