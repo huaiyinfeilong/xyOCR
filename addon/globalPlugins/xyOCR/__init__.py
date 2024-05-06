@@ -66,13 +66,6 @@ class XinyiOcrSettingsPanel(gui.settingsDialogs.SettingsPanel):
 			wx.TextCtrl,
 		)
 		self.idgAppIdTextCtrl.SetValue(config.conf["xinyiOcr"]["IDG"]["spark"]["appId"])
-		# Translators: The label for API secret textbox
-		idgApiSecretLabel = _("API Secret")
-		self.idgApiSecretTextCtrl = idgGroup.addLabeledControl(
-			_(idgApiSecretLabel),
-			wx.TextCtrl,
-		)
-		self.idgApiSecretTextCtrl.SetValue(config.conf["xinyiOcr"]["IDG"]["spark"]["apiSecret"])
 		# Translators: The label for API key textbox
 		idgApiKeyLabel = _("API Key")
 		self.idgApiKeyTextCtrl = idgGroup.addLabeledControl(
@@ -80,6 +73,13 @@ class XinyiOcrSettingsPanel(gui.settingsDialogs.SettingsPanel):
 			wx.TextCtrl,
 		)
 		self.idgApiKeyTextCtrl.SetValue(config.conf["xinyiOcr"]["IDG"]["spark"]["apiKey"])
+		# Translators: The label for API secret textbox
+		idgApiSecretLabel = _("API Secret")
+		self.idgApiSecretTextCtrl = idgGroup.addLabeledControl(
+			_(idgApiSecretLabel),
+			wx.TextCtrl,
+		)
+		self.idgApiSecretTextCtrl.SetValue(config.conf["xinyiOcr"]["IDG"]["spark"]["apiSecret"])
 		# Translators: The label for prompt textbox
 		idgPromptLabel = _("Prompt Words (Leave blank to use default. Prompt words can personalize the control of image recognition results)")
 		self.idgPromptTextCtrl = idgGroup.addLabeledControl(
@@ -130,8 +130,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 				"engine": "integer(default=0)",
 				"spark": {
 				"appId": "string(default='')",
-				"apiSecret": "string(default='')",
-				"apiKey": "string(default='')"
+				"apiKey": "string(default='')",
+				"apiSecret": "string(default='')"
 			},
 			}
 		}
