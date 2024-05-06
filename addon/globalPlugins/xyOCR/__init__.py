@@ -33,26 +33,20 @@ class XinyiOcrSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		ocrGroupBox = ocrGroupSizer.GetStaticBox()
 		ocrGroup = gui.guiHelper.BoxSizerHelper(ocrGroupBox, sizer=ocrGroupSizer)
 		helper.addItem(ocrGroup)
-		# Translators: The label for using share key checkbox
-		usingOcrShareKeyLabel = _("Using share key")
-		self.usingOcrShareKeyCheckBox = ocrGroup.addItem(
-			wx.CheckBox(ocrGroupBox, label=_(usingOcrShareKeyLabel))
-		)
-		self.usingOcrShareKeyCheckBox.SetValue(config.conf["xinyiOcr"]["OCR"]["baidu"]["usingShareKey"])
-		# Translators: The label for my APP key textbox
-		myOcrAppKeyLabel = _("My app key")
-		self.myOcrAppKeyTextCtrl = ocrGroup.addLabeledControl(
-			_(myOcrAppKeyLabel),
+		# Translators: The label for API key textbox
+		ocrApiKeyLabel = _("API Key")
+		self.ocrApiKeyTextCtrl = ocrGroup.addLabeledControl(
+			_(ocrApiKeyLabel),
 			wx.TextCtrl,
 		)
-		self.myOcrAppKeyTextCtrl.SetValue(config.conf["xinyiOcr"]["OCR"]["baidu"]["myAppKey"])
-		# Translators: The label for my APP secret textbox
-		myOcrAppSecretLabel = _("My app secret")
-		self.myOcrAppSecretTextCtrl = ocrGroup.addLabeledControl(
-			_(myOcrAppSecretLabel),
+		self.ocrApiKeyTextCtrl.SetValue(config.conf["xinyiOcr"]["OCR"]["baidu"]["apiKey"])
+		# Translators: The label for API secret textbox
+		ocrApiSecretLabel = _("Secret Key")
+		self.ocrApiSecretTextCtrl = ocrGroup.addLabeledControl(
+			_(ocrApiSecretLabel),
 			wx.TextCtrl,
 		)
-		self.myOcrAppSecretTextCtrl.SetValue(config.conf["xinyiOcr"]["OCR"]["baidu"]["myAppSecret"])
+		self.ocrApiSecretTextCtrl.SetValue(config.conf["xinyiOcr"]["OCR"]["baidu"]["apiSecret"])
 		# Translators: Periodically refresh recognized content
 		autoOcrRefreshLabel = _("Periodically refresh recognized content")
 		self.autoOcrRefreshCheckBox = ocrGroup.addItem(
@@ -66,44 +60,43 @@ class XinyiOcrSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		idgGroup = gui.guiHelper.BoxSizerHelper(idgGroupBox, sizer=idgGroupSizer)
 		helper.addItem(idgGroup)
 		# Translators: The label for APP ID textbox
-		myIdgAppIdLabel = _("My APP ID")
-		self.myIdgAppIdTextCtrl = idgGroup.addLabeledControl(
-			_(myIdgAppIdLabel),
+		idgAppIdLabel = _("APP ID")
+		self.idgAppIdTextCtrl = idgGroup.addLabeledControl(
+			_(idgAppIdLabel),
 			wx.TextCtrl,
 		)
-		self.myIdgAppIdTextCtrl.SetValue(config.conf["xinyiOcr"]["IDG"]["spark"]["appId"])
+		self.idgAppIdTextCtrl.SetValue(config.conf["xinyiOcr"]["IDG"]["spark"]["appId"])
 		# Translators: The label for API secret textbox
-		myIdgApiSecretLabel = _("My API secret")
-		self.myIdgApiSecretTextCtrl = idgGroup.addLabeledControl(
-			_(myIdgApiSecretLabel),
+		idgApiSecretLabel = _("API Secret")
+		self.idgApiSecretTextCtrl = idgGroup.addLabeledControl(
+			_(idgApiSecretLabel),
 			wx.TextCtrl,
 		)
-		self.myIdgApiSecretTextCtrl.SetValue(config.conf["xinyiOcr"]["IDG"]["spark"]["apiSecret"])
+		self.idgApiSecretTextCtrl.SetValue(config.conf["xinyiOcr"]["IDG"]["spark"]["apiSecret"])
 		# Translators: The label for API key textbox
-		myIdgApiKeyLabel = _("My API key")
-		self.myIdgApiKeyTextCtrl = idgGroup.addLabeledControl(
-			_(myIdgApiKeyLabel),
+		idgApiKeyLabel = _("API Key")
+		self.idgApiKeyTextCtrl = idgGroup.addLabeledControl(
+			_(idgApiKeyLabel),
 			wx.TextCtrl,
 		)
-		self.myIdgApiKeyTextCtrl.SetValue(config.conf["xinyiOcr"]["IDG"]["spark"]["apiKey"])
+		self.idgApiKeyTextCtrl.SetValue(config.conf["xinyiOcr"]["IDG"]["spark"]["apiKey"])
 		# Translators: The label for prompt textbox
-		myIdgPromptLabel = _("Prompt Words (Leave blank to use default. Prompt words can personalize the control of image recognition results)")
-		self.myIdgPromptTextCtrl = idgGroup.addLabeledControl(
-			_(myIdgPromptLabel),
+		idgPromptLabel = _("Prompt Words (Leave blank to use default. Prompt words can personalize the control of image recognition results)")
+		self.idgPromptTextCtrl = idgGroup.addLabeledControl(
+			_(idgPromptLabel),
 			wx.TextCtrl,
 		)
-		self.myIdgPromptTextCtrl.SetValue(config.conf["xinyiOcr"]["IDG"]["prompt"])
+		self.idgPromptTextCtrl.SetValue(config.conf["xinyiOcr"]["IDG"]["prompt"])
 
 	def onSave(self):
 		# 保存配置
-		config.conf["xinyiOcr"]["OCR"]["baidu"]["usingShareKey"] = self.usingOcrShareKeyCheckBox.IsChecked()
-		config.conf["xinyiOcr"]["OCR"]["baidu"]["myAppKey"] = self.myOcrAppKeyTextCtrl.GetValue()
-		config.conf["xinyiOcr"]["OCR"]["baidu"]["myAppSecret"] = self.myOcrAppSecretTextCtrl.GetValue()
+		config.conf["xinyiOcr"]["OCR"]["baidu"]["apiKey"] = self.ocrApiKeyTextCtrl.GetValue()
+		config.conf["xinyiOcr"]["OCR"]["baidu"]["apiSecret"] = self.ocrApiSecretTextCtrl.GetValue()
 		config.conf["xinyiOcr"]["OCR"]["autoRefresh"] = self.autoOcrRefreshCheckBox.IsChecked()
-		config.conf["xinyiOcr"]["IDG"]["spark"]["appId"] = self.myIdgAppIdTextCtrl.GetValue()
-		config.conf["xinyiOcr"]["IDG"]["spark"]["apiSecret"] = self.myIdgApiSecretTextCtrl.GetValue()
-		config.conf["xinyiOcr"]["IDG"]["spark"]["apiKey"] = self.myIdgApiKeyTextCtrl.GetValue()
-		config.conf["xinyiOcr"]["IDG"]["prompt"] = self.myIdgPromptTextCtrl.GetValue()
+		config.conf["xinyiOcr"]["IDG"]["spark"]["appId"] = self.idgAppIdTextCtrl.GetValue()
+		config.conf["xinyiOcr"]["IDG"]["spark"]["apiSecret"] = self.idgApiSecretTextCtrl.GetValue()
+		config.conf["xinyiOcr"]["IDG"]["spark"]["apiKey"] = self.idgApiKeyTextCtrl.GetValue()
+		config.conf["xinyiOcr"]["IDG"]["prompt"] = self.idgPromptTextCtrl.GetValue()
 
 # Translators: Script description
 CATEGORY_NAME = _("Xinyi OCR")
@@ -127,11 +120,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			"OCR": {
 				"engine": "integer(default=0)",
 				"baidu": {
-					"usingShareKey": "boolean(default=True)",
-					"shareAppKey": "string(default='QQbo1PCfCxh51snrOw0xVpzp')",
-					"shareAppSecret": "string(default='91CTiEsiET4KKN5LrhT6MGS3fCjGSkS1')",
-					"myAppKey": "string(default='')",
-					"myAppSecret": "string(default='')"
+					"apiKey": "string(default='')",
+					"apiSecret": "string(default='')"
 				},
 				"autoRefresh": "boolean(default=False)"
 			},

@@ -23,8 +23,8 @@ addonHandler.initTranslation()
 
 # 百度在线识别引擎
 class BaiduOcr(ocr.Ocr):
-	_app_key = ""
-	_app_secret = ""
+	_apiKey = ""
+	_apiSecret = ""
 	_access_token = ""
 	_thread = None
 
@@ -43,18 +43,16 @@ class BaiduOcr(ocr.Ocr):
 	def _fetch_access_token(self):
 		self._access_token = ""
 		# 获取app key和app secret
-		self._app_key = config.conf["xinyiOcr"]["OCR"]["baidu"]["shareAppKey"] \
-		if config.conf["xinyiOcr"]["OCR"]["baidu"]["usingShareKey"] else config.conf["xinyiOcr"]["OCR"]["baidu"]["myAppKey"]
-		self._app_secret = config.conf["xinyiOcr"]["OCR"]["baidu"]["shareAppSecret"] \
-		if config.conf["xinyiOcr"]["OCR"]["baidu"]["usingShareKey"] else config.conf["xinyiOcr"]["OCR"]["baidu"]["myAppSecret"]
+		self._apiKey = config.conf["xinyiOcr"]["OCR"]["baidu"]["apiKey"]
+		self._apiSecret = config.conf["xinyiOcr"]["OCR"]["baidu"]["apiSecret"]
 		# 获取access_token的URL
 		url = "https://aip.baidubce.com/oauth/2.0/token" \
 		"?grant_type=client_credentials" \
 		"&client_id={0}" \
 		"&client_secret={1}" \
 		.format(
-			self._app_key,
-			self._app_secret
+			self._apiKey,
+			self._apiSecret
 		)
 		headers = {
 			"Content-type": "application/json;charset=utf-8",
@@ -65,8 +63,8 @@ class BaiduOcr(ocr.Ocr):
 		except Exception as e:
 			log.error(f"获取access_token失败：\n{e}")
 			if str(e) == "HTTP Error 401: Unauthorized":
-				# Translators: Message: the app key or app secret is incorrect.
-				ui.message(_("The app key or app secret is incorrect."))
+				# Translators: Message: the API key or API secret is incorrect.
+				ui.message(_("The API key or API secret is incorrect."))
 				return
 		if response:
 			self._access_token = response.get("access_token")
@@ -158,11 +156,9 @@ class BaiduOcr(ocr.Ocr):
 				# 获取access_token
 				self._fetch_access_token()
 			# 判断是否用户更换了app key和app secret，如果配置中的参数与当前self._app_key和self._app_secret不一致，则说明用户做了更换操作
-			app_key = config.conf["xinyiOcr"]["OCR"]["baidu"]["shareAppKey"] \
-			if config.conf["xinyiOcr"]["OCR"]["baidu"]["usingShareKey"] else config.conf["xinyiOcr"]["OCR"]["baidu"]["myAppKey"]
-			app_secret = config.conf["xinyiOcr"]["OCR"]["baidu"]["shareAppSecret"] \
-			if config.conf["xinyiOcr"]["OCR"]["baidu"]["usingShareKey"] else config.conf["xinyiOcr"]["OCR"]["baidu"]["myAppSecret"]
-			if app_key != self._app_key or app_secret != self._app_secret:
+			apiKey = config.conf["xinyiOcr"]["OCR"]["baidu"]["apiKey"]
+			apiSecret = config.conf["xinyiOcr"]["OCR"]["baidu"]["apiSecret"]
+			if apiKey != self._apiKey or apiSecret != self._apiSecret:
 				self._fetch_access_token()
 			if not self._access_token or not pixels or not image_info or not on_result:
 				log.debug("参数错误。")
