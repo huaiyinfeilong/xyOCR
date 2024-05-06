@@ -212,7 +212,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			ui.message(_("Please turn off the screen curtain before recognition"))
 			return
 		try:
-			self.ocr.allowAutoRefresh = True
+			self.ocr.allowAutoRefresh = config.conf["xinyiOcr"]["OCR"]["autoRefresh"]
 			recogUi.recognizeNavigatorObject(self.ocr)
 		except Exception as e:
 			log.error(f"识别失败：\n{e}")
