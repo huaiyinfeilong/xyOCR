@@ -210,7 +210,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 	@scriptHandler.script(
 		# Translators: Clipboard recognition
-		description=_("Clipboard recognition"),
+		description=_("Clipboard text recognition"),
 		category=CATEGORY_NAME,
 		gesture="kb:NVDA+SHIFT+ALT+O"
 	)
