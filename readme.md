@@ -33,6 +33,14 @@ Any comments and suggestions are welcome to communicate:
 
 ## Upgrade log
 
+### Version 3.1.0
+
+* Added image description feature, supporting iFLYTEK Image Understanding API.
+* Removed shared secret key for Baidu OCR.
+* Updated configuration fields, requiring manual re-entry of Baidu OCR key.
+* Added localization support for Russian language.
+* Fixed the issue where OCR automatically refreshed regardless of whether "Periodically refresh recognition results" was selected or not.
+
 ### Version 3.0.3
 
 * Remove the image description function.
