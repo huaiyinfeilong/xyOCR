@@ -10,11 +10,11 @@ import json
 from recogExceptions import AuthenticationException
 import os
 import sys
+
 sys.path.insert(0, "\\".join(os.path.dirname(__file__).split("\\")[:-1]) + "\\_py3_contrib")
 sys.path.insert(0, os.path.dirname(__file__))
 from PIL import Image, ImageGrab
 import ui
-import base64
 import threading
 
 
@@ -28,7 +28,9 @@ class ImageRecognizer(ContentRecognizer):
 		prompt = config.conf["xinyiOcr"]["IDG"]["prompt"]
 		if prompt == "":
 			# Translators: default prompt
-			prompt = _("Please describe the content in the picture for me. You do not need to describe anything you are unsure about. Your description should be objective, accurate, and logical.")
+			prompt = _(
+				"Please describe the content in the picture for me. You do not need to describe anything you are unsure about. Your description should be objective, accurate, and logical."
+			)
 		return prompt
 
 	# 网络请求封装
@@ -56,11 +58,9 @@ class ImageRecognizer(ContentRecognizer):
 		# 如果有识别任务正在进行则返回
 		if self.thread and self.thread.is_alive():
 			return
-		self.thread = threading.Thread(target=self._recognize, kwargs={
-			"pixels": pixels,
-			"imageInfo": imageInfo,
-			"onResult": onResult
-		})
+		self.thread = threading.Thread(
+			target=self._recognize, kwargs={"pixels": pixels, "imageInfo": imageInfo, "onResult": onResult}
+		)
 		self.thread.start()
 
 	# 导航对象图片识别线程
@@ -70,11 +70,12 @@ class ImageRecognizer(ContentRecognizer):
 		image = Image.frombytes("RGBX", (width, height), pixels, "raw", "BGRX")
 		image = image.convert("RGB")
 		from io import BytesIO
+
 		output = BytesIO()
 		image.save(output, "png")
 		result = ""
 		try:
-				result = self._getImageDescription(output.getvalue())
+			result = self._getImageDescription(output.getvalue())
 		except AuthenticationException as e:
 			result = str(e)
 		except:
@@ -109,6 +110,7 @@ class ImageRecognizer(ContentRecognizer):
 			ui.message(_("Recognition failed"))
 			return
 		from io import BytesIO
+
 		output = BytesIO()
 		image.save(output, "png")
 		result = ""
