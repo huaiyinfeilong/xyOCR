@@ -2,7 +2,7 @@
 
 这是一个提供离线和在线OCR识别的NVDA插件。离线识别基于PaddleOCR_json组件而开发。
 
-本插件目前提供PaddleOCR_json的离线OCR识别引擎和在线百度通用版、高精度版识别引擎，安装插件后会自动安装PaddleOCR_json组件。后续会逐步接入更多的其他离线、在线OCR识别引擎。
+本插件目前提供PaddleOCR_json的离线OCR识别引擎和在线百度通用版、高精度版以及 Vivo 识别引擎，安装插件后会自动安装PaddleOCR_json组件。后续会逐步接入更多的其他离线、在线OCR识别引擎。
 
 此外，本插件还提供图像描述功能，可针对图片内容进行识别。
 
@@ -32,6 +32,14 @@
 * 微信：huaiyinfeilong
 
 ## 升级日志
+### Version 3.2.0
+
+* 支持Vivo OCR引擎（由 NVDACN 授权）。
+
+### Version 3.1.1
+
+* 与 NVDA 2025.1 兼容。
+
 
 ### Version 3.1.0
 
