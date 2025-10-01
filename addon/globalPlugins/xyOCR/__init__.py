@@ -15,7 +15,8 @@ from .paddleOcr import PaddleOcr
 from .baiduOcr import BaiduGeneralOcr, BaiduAccurateOcr
 from .util import is64ProcessorArchitecture
 from sparkImageRecog import SparkImageRecognizer
-
+from .vivoOcr import VivoOcr
+from .secure_storage import encrypt, decrypt
 
 addonHandler.initTranslation()
 
@@ -88,6 +89,30 @@ class XinyiOcrSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		)
 		self.idgPromptTextCtrl.SetValue(config.conf["xinyiOcr"]["IDG"]["prompt"])
 
+		# Translators: The label for the NVDACN account settings group.
+		nvdacnGroupLabel = _("NVDACN Account (for Vivo OCR)")
+		nvdacnGroupSizer = wx.StaticBoxSizer(wx.HORIZONTAL, self, nvdacnGroupLabel)
+		nvdacnGroupBox = nvdacnGroupSizer.GetStaticBox()
+		nvdacnGroup = gui.guiHelper.BoxSizerHelper(nvdacnGroupBox, sizer=nvdacnGroupSizer)
+		helper.addItem(nvdacnGroup)
+
+		# Translators: The label for the NVDACN username textbox.
+		nvdacnUserLabel = _("Username")
+		self.nvdacnUserCtrl = nvdacnGroup.addLabeledControl(
+			_(nvdacnUserLabel),
+			wx.TextCtrl,
+		)
+		self.nvdacnUserCtrl.SetValue(config.conf["xinyiOcr"]["nvdacn_account"]["user"])
+
+		# Translators: The label for the NVDACN password textbox.
+		nvdacnPassLabel = _("Password")
+		self.nvdacnPassCtrl = nvdacnGroup.addLabeledControl(
+			_(nvdacnPassLabel), wx.TextCtrl, style=wx.TE_PASSWORD
+		)
+		encrypted_password = config.conf["xinyiOcr"]["nvdacn_account"]["password"]
+		self.original_decrypted_password = decrypt(encrypted_password)
+		self.nvdacnPassCtrl.SetValue(self.original_decrypted_password)
+
 	def onSave(self):
 		# 保存配置
 		config.conf["xinyiOcr"]["OCR"]["baidu"]["apiKey"] = self.ocrApiKeyTextCtrl.GetValue()
@@ -97,6 +122,10 @@ class XinyiOcrSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		config.conf["xinyiOcr"]["IDG"]["spark"]["apiSecret"] = self.idgApiSecretTextCtrl.GetValue()
 		config.conf["xinyiOcr"]["IDG"]["spark"]["apiKey"] = self.idgApiKeyTextCtrl.GetValue()
 		config.conf["xinyiOcr"]["IDG"]["prompt"] = self.idgPromptTextCtrl.GetValue()
+		config.conf["xinyiOcr"]["nvdacn_account"]["user"] = self.nvdacnUserCtrl.GetValue()
+		current_password_input = self.nvdacnPassCtrl.GetValue()
+		if current_password_input != self.original_decrypted_password:
+			config.conf["xinyiOcr"]["nvdacn_account"]["password"] = encrypt(current_password_input)
 
 
 # Translators: Script description
@@ -133,6 +162,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 					"apiSecret": "string(default='')",
 				},
 			},
+			"nvdacn_account": {"user": "string(default='')", "password": "string(default='')"},
 		}
 		config.conf.spec["xinyiOcr"] = confspec
 		gui.settingsDialogs.NVDASettingsDialog.categoryClasses.append(XinyiOcrSettingsPanel)
@@ -142,6 +172,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 				self.ocr_list.append(PaddleOcr())
 			self.ocr_list.append(BaiduGeneralOcr())
 			self.ocr_list.append(BaiduAccurateOcr())
+			self.ocr_list.append(VivoOcr())
 			for ocr in self.ocr_list:
 				try:
 					ocr.initRecognizer()
