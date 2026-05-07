@@ -135,6 +135,13 @@ CATEGORY_NAME = _("Xinyi OCR")
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	# 检测穆连平是否开启
 	def isScreenCurtainRunning(self):
+		try:
+			from screenCurtain import screenCurtain
+
+			return screenCurtain is not None and screenCurtain.enabled
+		except ImportError:
+			pass
+
 		import vision
 		from visionEnhancementProviders.screenCurtain import ScreenCurtainProvider
 
