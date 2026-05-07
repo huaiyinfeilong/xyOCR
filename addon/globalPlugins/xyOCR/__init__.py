@@ -15,7 +15,8 @@ from .paddleOcr import PaddleOcr
 from .baiduOcr import BaiduGeneralOcr, BaiduAccurateOcr
 from .util import is64ProcessorArchitecture
 from sparkImageRecog import SparkImageRecognizer
-
+from .vivoOcr import VivoOcr
+from .secure_storage import encrypt, decrypt
 
 addonHandler.initTranslation()
 
@@ -49,9 +50,7 @@ class XinyiOcrSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		self.ocrApiSecretTextCtrl.SetValue(config.conf["xinyiOcr"]["OCR"]["baidu"]["apiSecret"])
 		# Translators: Periodically refresh recognized content
 		autoOcrRefreshLabel = _("Periodically refresh recognized content")
-		self.autoOcrRefreshCheckBox = ocrGroup.addItem(
-			wx.CheckBox(ocrGroupBox, label=_(autoOcrRefreshLabel))
-		)
+		self.autoOcrRefreshCheckBox = ocrGroup.addItem(wx.CheckBox(ocrGroupBox, label=_(autoOcrRefreshLabel)))
 		self.autoOcrRefreshCheckBox.SetValue(config.conf["xinyiOcr"]["OCR"]["autoRefresh"])
 		# Translators: the label for groupbox of image description generation
 		idgGroupLabel = _("Ifly image understanding")
@@ -81,12 +80,38 @@ class XinyiOcrSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		)
 		self.idgApiSecretTextCtrl.SetValue(config.conf["xinyiOcr"]["IDG"]["spark"]["apiSecret"])
 		# Translators: The label for prompt textbox
-		idgPromptLabel = _("Prompt Words (Leave blank to use default. Prompt words can personalize the control of image recognition results)")
+		idgPromptLabel = _(
+			"Prompt Words (Leave blank to use default. Prompt words can personalize the control of image recognition results)"
+		)
 		self.idgPromptTextCtrl = idgGroup.addLabeledControl(
 			_(idgPromptLabel),
 			wx.TextCtrl,
 		)
 		self.idgPromptTextCtrl.SetValue(config.conf["xinyiOcr"]["IDG"]["prompt"])
+
+		# Translators: The label for the NVDACN account settings group.
+		nvdacnGroupLabel = _("NVDACN Account (for Vivo OCR)")
+		nvdacnGroupSizer = wx.StaticBoxSizer(wx.HORIZONTAL, self, nvdacnGroupLabel)
+		nvdacnGroupBox = nvdacnGroupSizer.GetStaticBox()
+		nvdacnGroup = gui.guiHelper.BoxSizerHelper(nvdacnGroupBox, sizer=nvdacnGroupSizer)
+		helper.addItem(nvdacnGroup)
+
+		# Translators: The label for the NVDACN username textbox.
+		nvdacnUserLabel = _("Username")
+		self.nvdacnUserCtrl = nvdacnGroup.addLabeledControl(
+			_(nvdacnUserLabel),
+			wx.TextCtrl,
+		)
+		self.nvdacnUserCtrl.SetValue(config.conf["xinyiOcr"]["nvdacn_account"]["user"])
+
+		# Translators: The label for the NVDACN password textbox.
+		nvdacnPassLabel = _("Password")
+		self.nvdacnPassCtrl = nvdacnGroup.addLabeledControl(
+			_(nvdacnPassLabel), wx.TextCtrl, style=wx.TE_PASSWORD
+		)
+		encrypted_password = config.conf["xinyiOcr"]["nvdacn_account"]["password"]
+		self.original_decrypted_password = decrypt(encrypted_password)
+		self.nvdacnPassCtrl.SetValue(self.original_decrypted_password)
 
 	def onSave(self):
 		# 保存配置
@@ -97,6 +122,11 @@ class XinyiOcrSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		config.conf["xinyiOcr"]["IDG"]["spark"]["apiSecret"] = self.idgApiSecretTextCtrl.GetValue()
 		config.conf["xinyiOcr"]["IDG"]["spark"]["apiKey"] = self.idgApiKeyTextCtrl.GetValue()
 		config.conf["xinyiOcr"]["IDG"]["prompt"] = self.idgPromptTextCtrl.GetValue()
+		config.conf["xinyiOcr"]["nvdacn_account"]["user"] = self.nvdacnUserCtrl.GetValue()
+		current_password_input = self.nvdacnPassCtrl.GetValue()
+		if current_password_input != self.original_decrypted_password:
+			config.conf["xinyiOcr"]["nvdacn_account"]["password"] = encrypt(current_password_input)
+
 
 # Translators: Script description
 CATEGORY_NAME = _("Xinyi OCR")
@@ -107,6 +137,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def isScreenCurtainRunning(self):
 		import vision
 		from visionEnhancementProviders.screenCurtain import ScreenCurtainProvider
+
 		screen_curtain_provider_info = vision.handler.getProviderInfo(
 			ScreenCurtainProvider.getSettings().getId()
 		)
@@ -119,21 +150,19 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		confspec = {
 			"OCR": {
 				"engine": "integer(default=0)",
-				"baidu": {
-					"apiKey": "string(default='')",
-					"apiSecret": "string(default='')"
-				},
-				"autoRefresh": "boolean(default=False)"
+				"baidu": {"apiKey": "string(default='')", "apiSecret": "string(default='')"},
+				"autoRefresh": "boolean(default=False)",
 			},
 			"IDG": {
-			"prompt": "string(default='')",
+				"prompt": "string(default='')",
 				"engine": "integer(default=0)",
 				"spark": {
-				"appId": "string(default='')",
-				"apiKey": "string(default='')",
-				"apiSecret": "string(default='')"
+					"appId": "string(default='')",
+					"apiKey": "string(default='')",
+					"apiSecret": "string(default='')",
+				},
 			},
-			}
+			"nvdacn_account": {"user": "string(default='')", "password": "string(default='')"},
 		}
 		config.conf.spec["xinyiOcr"] = confspec
 		gui.settingsDialogs.NVDASettingsDialog.categoryClasses.append(XinyiOcrSettingsPanel)
@@ -143,6 +172,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 				self.ocr_list.append(PaddleOcr())
 			self.ocr_list.append(BaiduGeneralOcr())
 			self.ocr_list.append(BaiduAccurateOcr())
+			self.ocr_list.append(VivoOcr())
 			for ocr in self.ocr_list:
 				try:
 					ocr.initRecognizer()
@@ -152,8 +182,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 					self.ocr_list.remove(ocr)
 					continue
 			# 配置文件中的引擎索引若大于实际索引范围，则设置引擎索引为0，这种超出情况可能出现于拷贝用户配置到另一台不支持x64环境的机器中运行
-			index = config.conf["xinyiOcr"]["OCR"]["engine"] \
-			if config.conf["xinyiOcr"]["OCR"]["engine"] < len(self.ocr_list) else 0
+			index = (
+				config.conf["xinyiOcr"]["OCR"]["engine"]
+				if config.conf["xinyiOcr"]["OCR"]["engine"] < len(self.ocr_list)
+				else 0
+			)
 			self.ocr = self.ocr_list[index]
 		except Exception as e:
 			log.error(f"初始化失败：{str(e)}")
@@ -169,7 +202,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		# Translators: Choose OCR engine
 		description=_("Switch OCR engine"),
 		category=CATEGORY_NAME,
-		gesture="kb:NVDA+ALT+9"
+		gesture="kb:NVDA+ALT+9",
 	)
 	def script_switchOcr(self, gesture):
 		if self.ocr is None:
@@ -188,7 +221,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		# Translators: Text recognition
 		description=_("Text recognition"),
 		category=CATEGORY_NAME,
-		gesture="kb:NVDA+ALT+O"
+		gesture="kb:NVDA+ALT+O",
 	)
 	def script_recognize_image(self, gesture):
 		if self.ocr is None:
@@ -212,7 +245,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		# Translators: Clipboard recognition
 		description=_("Clipboard text recognition"),
 		category=CATEGORY_NAME,
-		gesture="kb:NVDA+SHIFT+ALT+O"
+		gesture="kb:NVDA+SHIFT+ALT+O",
 	)
 	def script_recognize_clipboard(self, gesture):
 		if self.ocr is None:
@@ -247,7 +280,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		# Translators: Image description
 		description=_("Image description"),
 		category=CATEGORY_NAME,
-		gesture="kb:NVDA+ALT+P"
+		gesture="kb:NVDA+ALT+P",
 	)
 	def script_imageRecognize(self, gesture):
 		if self.isScreenCurtainRunning():
@@ -264,7 +297,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		# Translators: Clipboard image description
 		description=_("Clipboard image description"),
 		category=CATEGORY_NAME,
-		gesture="kb:NVDA+ALT+SHIFT+P"
+		gesture="kb:NVDA+ALT+SHIFT+P",
 	)
 	def script_clipboardImageRecognize(self, gesture):
 		if isinstance(api.getFocusObject(), recogUi.RecogResultNVDAObject):

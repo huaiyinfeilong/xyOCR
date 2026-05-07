@@ -1,13 +1,6 @@
 # coding=utf-8
 
-from ctypes import (
-	windll,
-	POINTER,
-	wintypes,
-	Structure,
-	CDLL,
-	byref
-						)
+from ctypes import windll, wintypes, Structure, byref
 
 
 # 处理器架构类型定义
@@ -23,7 +16,7 @@ class ProcessorArchitecture(object):
 	# x86
 	PROCESSOR_ARCHITECTURE_INTEL = 0
 	# Unknown architecture.
-	PROCESSOR_ARCHITECTURE_UNKNOWN = 0xffff
+	PROCESSOR_ARCHITECTURE_UNKNOWN = 0xFFFF
 
 
 # WIN32 SystemInformation结构体定义
@@ -39,14 +32,14 @@ class SystemInfo(Structure):
 		("dwProcessorType", wintypes.DWORD),
 		("dwAllocationGranularity", wintypes.DWORD),
 		("wProcessorLevel", wintypes.DWORD),
-		("wProcessorRevision", wintypes.WORD)
+		("wProcessorRevision", wintypes.WORD),
 	]
 
 
 def is64ProcessorArchitecture():
 	"""检查是否x64系统
-		@return: 如果为x64系统返回True，否则返回False
-		@rtype: bool
+	@return: 如果为x64系统返回True，否则返回False
+	@rtype: bool
 	"""
 	sysInfo = SystemInfo()
 	GetNativeSystemInfo = windll.kernel32.GetNativeSystemInfo

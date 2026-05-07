@@ -14,12 +14,14 @@ from . import ocr
 from . import helper
 import os
 import sys
+
 sys.path.insert(0, "\\".join(os.path.dirname(__file__).split("\\")[:-1]) + "\\_py3_contrib")
 sys.path.insert(0, os.path.dirname(__file__))
 from PIL import Image, ImageGrab
 
 
 addonHandler.initTranslation()
+
 
 # 百度在线识别引擎
 class BaiduOcr(ocr.Ocr):
@@ -46,18 +48,13 @@ class BaiduOcr(ocr.Ocr):
 		self._apiKey = config.conf["xinyiOcr"]["OCR"]["baidu"]["apiKey"]
 		self._apiSecret = config.conf["xinyiOcr"]["OCR"]["baidu"]["apiSecret"]
 		# 获取access_token的URL
-		url = "https://aip.baidubce.com/oauth/2.0/token" \
-		"?grant_type=client_credentials" \
-		"&client_id={0}" \
-		"&client_secret={1}" \
-		.format(
-			self._apiKey,
-			self._apiSecret
+		url = (
+			"https://aip.baidubce.com/oauth/2.0/token"
+			"?grant_type=client_credentials"
+			"&client_id={0}"
+			"&client_secret={1}".format(self._apiKey, self._apiSecret)
 		)
-		headers = {
-			"Content-type": "application/json;charset=utf-8",
-			"Accept": "application/json"
-		}
+		headers = {"Content-type": "application/json;charset=utf-8", "Accept": "application/json"}
 		try:
 			response = self._http_request(url=url, headers=headers, method="POST")
 		except Exception as e:
@@ -90,23 +87,21 @@ class BaiduOcr(ocr.Ocr):
 		image = Image.frombytes("RGBX", (width, height), pixels, "raw", "BGRX")
 		image = image.convert("RGB")
 		from io import BytesIO
+
 		output = BytesIO()
 		image.save(output, format="png")
-	# 启动识别线程
+		# 启动识别线程
 		log.debug("启动导航对象识别线程。")
 		if not self._thread or not self._thread.is_alive():
 			log.debug("准备启动识别线程。")
 			self._thread = threading.Thread(
 				target=self._recognize,
-				kwargs={
-					"pixels": output.getvalue(),
-					"image_info": image_info,
-					"on_result": on_result
-				}
+				kwargs={"pixels": output.getvalue(), "image_info": image_info, "on_result": on_result},
 			)
 			self._thread.start()
 
 		# 剪贴板识别
+
 	def recognize_clipboard(self, on_result):
 		log.debug("剪贴板识别启动。")
 		image = ImageGrab.grabclipboard()
@@ -131,6 +126,7 @@ class BaiduOcr(ocr.Ocr):
 			return
 		log.debug("获取剪贴板图片成功。")
 		from io import BytesIO
+
 		output = BytesIO()
 		image.save(output, format="png")
 		width = image.width
@@ -140,11 +136,7 @@ class BaiduOcr(ocr.Ocr):
 			log.debug("准备启动识别线程。")
 			self._thread = threading.Thread(
 				target=self._recognize,
-				kwargs={
-					"pixels": output.getvalue(),
-					"image_info": image_info,
-					"on_result": on_result
-				}
+				kwargs={"pixels": output.getvalue(), "image_info": image_info, "on_result": on_result},
 			)
 			self._thread.start()
 
@@ -185,7 +177,7 @@ class BaiduOcr(ocr.Ocr):
 					"x": location.get("left"),
 					"y": location.get("top"),
 					"width": location.get("width"),
-					"height": location.get("height")
+					"height": location.get("height"),
 				}
 				words.append(word)
 				lines.append(words)

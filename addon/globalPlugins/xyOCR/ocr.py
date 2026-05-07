@@ -2,6 +2,7 @@
 
 from contentRecog import ContentRecognizer
 
+
 # OCR接口
 class Ocr(ContentRecognizer):
 	# 抽象方法被调用时抛出的异常信息

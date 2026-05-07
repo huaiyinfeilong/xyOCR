@@ -2,9 +2,9 @@
 
 This is an NVDA addon that provides offline and online OCR recognition. Offline recognition is developed based on the PaddleOCR_json component.
 
-This add-on currently provides PaddleOCR_json's offline OCR recognition engine and the online Baidu general version and accurate version of the recognition engine. After installing the add-on, the PaddleOCR_json component will be automatically installed. More other offline and online OCR recognition engines will be gradually connected in the future.
+This add-on currently provides PaddleOCR_json's offline OCR recognition engine and the online Baidu general version and accurate version and Vivo of the recognition engine. After installing the add-on, the PaddleOCR_json component will be automatically installed. More other offline and online OCR recognition engines will be gradually connected in the future.
 
-In addition, this plugin also provides image description function, which can identify image content.
+In addition, this add-on also provides image description function, which can identify image content.
 
 ## Addon Advantages
 
@@ -32,6 +32,13 @@ Any comments and suggestions are welcome to communicate:
 * WeChat: huaiyinfeilong
 
 ## Upgrade log
+### Version 3.2.0
+
+* Support Vivo OCR engine (authorized by NVDACN).
+
+### Version 3.1.1
+
+* Compatible with NVDA 2025.1.
 
 ### Version 3.1.0
 

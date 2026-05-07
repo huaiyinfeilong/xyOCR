@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 'xyOCR' '1.0'\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
-"POT-Creation-Date: 2024-05-09 15:21+0800\n"
+"POT-Creation-Date: 2025-10-01 21:17+0800\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -15,139 +15,43 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.2.2\n"
+"X-Generator: Poedit 3.7\n"
 
-#. Translators: Settings panel title
-#. Translators: Script description
-#. Add-on summary, usually the user visible name of the addon.
-#. Translators: Summary for this add-on
-#. to be shown on installation and add-on information found in Add-ons Manager.
-#: addon\globalPlugins\xyOCR\__init__.py:26
-#: addon\globalPlugins\xyOCR\__init__.py:102 buildVars.py:23
-msgid "Xinyi OCR"
-msgstr "新翼OCR"
-
-#. Translators: the label for groupbox of Baidu OCR
-#: addon\globalPlugins\xyOCR\__init__.py:31
-msgid "Baidu OCR"
-msgstr "百度OCR"
-
-#. Translators: The label for API key textbox
-#: addon\globalPlugins\xyOCR\__init__.py:37
-#: addon\globalPlugins\xyOCR\__init__.py:70
-msgid "API Key"
-msgstr "API Key"
-
-#. Translators: The label for API secret textbox
-#: addon\globalPlugins\xyOCR\__init__.py:44
-msgid "Secret Key"
-msgstr "Secret Key"
-
-#. Translators: Periodically refresh recognized content
-#: addon\globalPlugins\xyOCR\__init__.py:51
-msgid "Periodically refresh recognized content"
-msgstr "定期刷新识别结果"
-
-#. Translators: the label for groupbox of image description generation
-#: addon\globalPlugins\xyOCR\__init__.py:57
-msgid "Ifly image understanding"
-msgstr "讯飞图片理解"
-
-#. Translators: The label for APP ID textbox
-#: addon\globalPlugins\xyOCR\__init__.py:63
-msgid "APP ID"
-msgstr "应用ID"
-
-#. Translators: The label for API secret textbox
-#: addon\globalPlugins\xyOCR\__init__.py:77
-msgid "API Secret"
-msgstr "API Secret"
-
-#. Translators: The label for prompt textbox
-#: addon\globalPlugins\xyOCR\__init__.py:84
-msgid ""
-"Prompt Words (Leave blank to use default. Prompt words can personalize the "
-"control of image recognition results)"
-msgstr "提示词（保留为空以使用默认值。提示词可以个性化的控制图像识别结果）"
-
-#. Translators: Choose OCR engine
-#: addon\globalPlugins\xyOCR\__init__.py:170
-msgid "Switch OCR engine"
-msgstr "切换OCR引擎"
-
-#. Translators: Text recognition
-#: addon\globalPlugins\xyOCR\__init__.py:189
-msgid "Text recognition"
-msgstr "文字识别"
+#. Translators: Message: the API key or API secret is incorrect.
+#: addon\globalPlugins\xyOCR\baiduOcr.py:64
+msgid "The API key or API secret is incorrect."
+msgstr "API key 或 API secret 不正确。"
 
 #. Translators: Recognition failed
 #. 剪贴板中既不是图片内容也不是图片文件
 #. Translators: Recognition failed
-#: addon\globalPlugins\xyOCR\__init__.py:197
-#: addon\globalPlugins\xyOCR\__init__.py:209
-#: addon\globalPlugins\xyOCR\__init__.py:236
-#: addon\globalPlugins\xyOCR\__init__.py:259
-#: addon\globalPlugins\xyOCR\__init__.py:277
-#: addon\globalPlugins\xyOCR\baiduOcr.py:130
-#: addon\globalPlugins\xyOCR\baiduOcr.py:176
-#: addon\globalPlugins\xyOCR\baiduOcr.py:197
-#: addon\globalPlugins\xyOCR\imageRecog.py:81
-#: addon\globalPlugins\xyOCR\imageRecog.py:109
-#: addon\globalPlugins\xyOCR\imageRecog.py:121
-#: addon\globalPlugins\xyOCR\paddleOcr.py:95
-#: addon\globalPlugins\xyOCR\paddleOcr.py:128
+#: addon\globalPlugins\xyOCR\baiduOcr.py:125
+#: addon\globalPlugins\xyOCR\baiduOcr.py:168
+#: addon\globalPlugins\xyOCR\baiduOcr.py:189
+#: addon\globalPlugins\xyOCR\imageRecog.py:82
+#: addon\globalPlugins\xyOCR\imageRecog.py:110
+#: addon\globalPlugins\xyOCR\imageRecog.py:123
+#: addon\globalPlugins\xyOCR\paddleOcr.py:90
+#: addon\globalPlugins\xyOCR\paddleOcr.py:124
+#: addon\globalPlugins\xyOCR\__init__.py:230
+#: addon\globalPlugins\xyOCR\__init__.py:242
+#: addon\globalPlugins\xyOCR\__init__.py:269
+#: addon\globalPlugins\xyOCR\__init__.py:292
+#: addon\globalPlugins\xyOCR\__init__.py:310
 msgid "Recognition failed"
 msgstr "识别失败"
 
-#: addon\globalPlugins\xyOCR\__init__.py:202
-#: addon\globalPlugins\xyOCR\__init__.py:256
-msgid "Please turn off the screen curtain before recognition"
-msgstr "识别前请关闭黑屏"
-
-#. Translators: Clipboard recognition
-#: addon\globalPlugins\xyOCR\__init__.py:213
-msgid "Clipboard text recognition"
-msgstr "剪贴板文字识别"
-
-#. Translators: Already in a content recognition result
-#: addon\globalPlugins\xyOCR\__init__.py:228
-#: addon\globalPlugins\xyOCR\__init__.py:272
-msgid "Already in a content recognition result"
-msgstr "现已处于内容识别结果区域"
-
-#. Translators: Recognizing
-#: addon\globalPlugins\xyOCR\__init__.py:231
-#: addon\globalPlugins\xyOCR\__init__.py:275
-msgid "Recognizing"
-msgstr "正在识别"
-
-#. Translators: Image description
-#: addon\globalPlugins\xyOCR\__init__.py:248
-msgid "Image description"
-msgstr "图像描述"
-
-#. Translators: Clipboard image description
-#: addon\globalPlugins\xyOCR\__init__.py:265
-msgid "Clipboard image description"
-msgstr "剪贴板图像描述"
-
-#. Translators: Message: the API key or API secret is incorrect.
-#: addon\globalPlugins\xyOCR\baiduOcr.py:67
-msgid "The API key or API secret is incorrect."
-msgstr "API key 或 API secret 不正确。"
-
 #. Translators: Baidu Accurate OCR
-#: addon\globalPlugins\xyOCR\baiduOcr.py:209
+#: addon\globalPlugins\xyOCR\baiduOcr.py:201
 msgid "Baidu Accurate OCR"
 msgstr "百度高精度OCR"
 
 #. Translators: Baidu General OCR
-#: addon\globalPlugins\xyOCR\baiduOcr.py:216
+#: addon\globalPlugins\xyOCR\baiduOcr.py:208
 msgid "Baidu General OCR"
 msgstr "百度通用OCR"
 
-#. Translators: default prompt
-#: addon\globalPlugins\xyOCR\imageRecog.py:31
+#: addon\globalPlugins\xyOCR\imageRecog.py:32
 msgid ""
 "Please describe the content in the picture for me. You do not need to "
 "describe anything you are unsure about. Your description should be "
@@ -157,19 +61,176 @@ msgstr ""
 "确的，有逻辑性的。"
 
 #. Translators: Offline OCR
-#: addon\globalPlugins\xyOCR\paddleOcr.py:33
+#: addon\globalPlugins\xyOCR\paddleOcr.py:28
 msgid "Offline OCR"
 msgstr "离线OCR"
 
-#: addon\globalPlugins\xyOCR\sparkImageRecog.py:171
+#: addon\globalPlugins\xyOCR\sparkImageRecog.py:162
 msgid "Please setup Ifly image understanding API key first"
 msgstr "请先设置讯飞图像理解API密钥"
 
+#. Translators: The name of the Vivo OCR engine.
+#: addon\globalPlugins\xyOCR\vivoOcr.py:27
+msgid "Vivo OCR (NVDACN)"
+msgstr "Vivo OCR (NVDACN)"
+
+#: addon\globalPlugins\xyOCR\vivoOcr.py:64
+msgid "No image on clipboard."
+msgstr "剪贴板上没有图像。"
+
+#: addon\globalPlugins\xyOCR\vivoOcr.py:103
+msgid "Please configure your NVDACN account in Xinyi OCR settings."
+msgstr "请在新翼OCR设置中配置您的NVDA中文站帐户。"
+
+#: addon\globalPlugins\xyOCR\vivoOcr.py:132
+msgid "Vivo API Error: {}"
+msgstr "Vivo API 错误: {}"
+
+#: addon\globalPlugins\xyOCR\vivoOcr.py:140
+msgid "No text recognized."
+msgstr "未识别到文本。"
+
+#: addon\globalPlugins\xyOCR\vivoOcr.py:144
+msgid "NVDACN authentication failed. Please check your credentials."
+msgstr "NVDACN 身份验证失败。请检查您的账号/密码是否输入正确。"
+
+#: addon\globalPlugins\xyOCR\vivoOcr.py:147
+msgid ""
+"Could not connect to the authentication server. Please check your network."
+msgstr "无法连接到身份验证服务器。请检查您的网络。"
+
+#: addon\globalPlugins\xyOCR\vivoOcr.py:150
+msgid "An unexpected authentication error occurred."
+msgstr "身份验证过程中发生意外错误。"
+
+#: addon\globalPlugins\xyOCR\vivoOcr.py:153
+msgid "Recognition failed: Network error or timeout."
+msgstr "识别失败：网络错误或超时。"
+
+#: addon\globalPlugins\xyOCR\vivoOcr.py:156
+msgid "Recognition failed."
+msgstr "识别失败。"
+
+#. Translators: Settings panel title
+#. Translators: Script description
+#. Add-on summary/title, usually the user visible name of the add-on
+#. Translators: Summary/title for this add-on
+#. to be shown on installation and add-on information found in add-on store
+#: addon\globalPlugins\xyOCR\__init__.py:27
+#: addon\globalPlugins\xyOCR\__init__.py:132 buildVars.py:21
+msgid "Xinyi OCR"
+msgstr "新翼OCR"
+
+#. Translators: the label for groupbox of Baidu OCR
+#: addon\globalPlugins\xyOCR\__init__.py:32
+msgid "Baidu OCR"
+msgstr "百度OCR"
+
+#. Translators: The label for API key textbox
+#: addon\globalPlugins\xyOCR\__init__.py:38
+#: addon\globalPlugins\xyOCR\__init__.py:69
+msgid "API Key"
+msgstr "API Key"
+
+#. Translators: The label for API secret textbox
+#: addon\globalPlugins\xyOCR\__init__.py:45
+msgid "Secret Key"
+msgstr "Secret Key"
+
+#. Translators: Periodically refresh recognized content
+#: addon\globalPlugins\xyOCR\__init__.py:52
+msgid "Periodically refresh recognized content"
+msgstr "定期刷新识别结果"
+
+#. Translators: the label for groupbox of image description generation
+#: addon\globalPlugins\xyOCR\__init__.py:56
+msgid "Ifly image understanding"
+msgstr "讯飞图片理解"
+
+#. Translators: The label for APP ID textbox
+#: addon\globalPlugins\xyOCR\__init__.py:62
+msgid "APP ID"
+msgstr "应用ID"
+
+#. Translators: The label for API secret textbox
+#: addon\globalPlugins\xyOCR\__init__.py:76
+msgid "API Secret"
+msgstr "API Secret"
+
+#: addon\globalPlugins\xyOCR\__init__.py:84
+msgid ""
+"Prompt Words (Leave blank to use default. Prompt words can personalize the "
+"control of image recognition results)"
+msgstr "提示词（保留为空以使用默认值。提示词可以个性化的控制图像识别结果）"
+
+#. Translators: The label for the NVDACN account settings group.
+#: addon\globalPlugins\xyOCR\__init__.py:93
+msgid "NVDACN Account (for Vivo OCR)"
+msgstr "NVDA中文站 帐户（用于 Vivo OCR）"
+
+#. Translators: The label for the NVDACN username textbox.
+#: addon\globalPlugins\xyOCR\__init__.py:100
+msgid "Username"
+msgstr "用户名"
+
+#. Translators: The label for the NVDACN password textbox.
+#: addon\globalPlugins\xyOCR\__init__.py:108
+msgid "Password"
+msgstr "密码"
+
+#. Translators: Choose OCR engine
+#: addon\globalPlugins\xyOCR\__init__.py:203
+msgid "Switch OCR engine"
+msgstr "切换OCR引擎"
+
+#. Translators: Text recognition
+#: addon\globalPlugins\xyOCR\__init__.py:222
+msgid "Text recognition"
+msgstr "文字识别"
+
+#: addon\globalPlugins\xyOCR\__init__.py:235
+#: addon\globalPlugins\xyOCR\__init__.py:289
+msgid "Please turn off the screen curtain before recognition"
+msgstr "识别前请关闭黑屏"
+
+#. Translators: Clipboard recognition
+#: addon\globalPlugins\xyOCR\__init__.py:246
+msgid "Clipboard text recognition"
+msgstr "剪贴板文字识别"
+
+#. Translators: Already in a content recognition result
+#: addon\globalPlugins\xyOCR\__init__.py:261
+#: addon\globalPlugins\xyOCR\__init__.py:305
+msgid "Already in a content recognition result"
+msgstr "现已处于内容识别结果区域"
+
+#. Translators: Recognizing
+#: addon\globalPlugins\xyOCR\__init__.py:264
+#: addon\globalPlugins\xyOCR\__init__.py:308
+msgid "Recognizing"
+msgstr "正在识别"
+
+#. Translators: Image description
+#: addon\globalPlugins\xyOCR\__init__.py:281
+msgid "Image description"
+msgstr "图像描述"
+
+#. Translators: Clipboard image description
+#: addon\globalPlugins\xyOCR\__init__.py:298
+msgid "Clipboard image description"
+msgstr "剪贴板图像描述"
+
 #. Add-on description
-#. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
-#: buildVars.py:26
-msgid "Aggregating various offline and online OCR services"
-msgstr "聚合各种离线和在线 OCR 服务"
+#. Translators: Long description to be shown for this add-on on add-on information from add-on store
+#: buildVars.py:24
+msgid "Aggregating various offline and online OCR services."
+msgstr "整合各种离线和在线 OCR 服务。"
+
+#. Brief changelog for this version
+#. Translators: what's new content for the add-on version to be shown in the add-on store
+#: buildVars.py:29
+msgid "Compatible with NVDA 2 0 2 5.1 and above."
+msgstr "与 NVDA 2 0 2 5.1 及以上版本兼容。"
 
 #~ msgid "Using share key"
 #~ msgstr "使用共享密钥"

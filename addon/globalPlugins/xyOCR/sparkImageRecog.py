@@ -1,9 +1,8 @@
-#-*- coding=utf-8 -*-
+# -*- coding=utf-8 -*-
 
-""" 讯飞星火图片理解（Image understanding）功能到 ImageRecognizer 的业务封装
-	详见： https://www.xfyun.cn/doc/spark/ImageUnderstanding.html
+"""讯飞星火图片理解（Image understanding）功能到 ImageRecognizer 的业务封装
+详见： https://www.xfyun.cn/doc/spark/ImageUnderstanding.html
 """
-
 
 from logHandler import log
 import config
@@ -23,6 +22,7 @@ from urllib.parse import urlencode
 from recogExceptions import AuthenticationException, ImageRecognitionException
 import os
 import sys
+
 sys.path.insert(0, "\\".join(os.path.dirname(__file__).split("\\")[:-1]) + "\\_py3_contrib")
 from wsgiref.handlers import format_date_time
 import websocket  # 使用websocket_client
@@ -53,23 +53,20 @@ class Ws_Param(object):
 		signatureOrigin += "GET " + self.path + " HTTP/1.1"
 
 		# 进行hmac-sha256进行加密
-		signatureSha = hmac.new(self.apiSecret.encode('utf-8'), signatureOrigin.encode('utf-8'),
-								 digestmod = hashlib.sha256).digest()
+		signatureSha = hmac.new(
+			self.apiSecret.encode("utf-8"), signatureOrigin.encode("utf-8"), digestmod=hashlib.sha256
+		).digest()
 
-		signatureShaBase64 = base64.b64encode(signatureSha).decode(encoding='utf-8')
+		signatureShaBase64 = base64.b64encode(signatureSha).decode(encoding="utf-8")
 
 		authorizationOrigin = f'api_key="{self.apiKey}", algorithm="hmac-sha256", headers="host date request-line", signature="{signatureShaBase64}"'
 
-		authorization = base64.b64encode(authorizationOrigin.encode('utf-8')).decode(encoding='utf-8')
+		authorization = base64.b64encode(authorizationOrigin.encode("utf-8")).decode(encoding="utf-8")
 
 		# 将请求的鉴权参数组合为字典
-		v = {
-			"authorization": authorization,
-			"date": date,
-			"host": self.host
-		}
+		v = {"authorization": authorization, "date": date, "host": self.host}
 		# 拼接鉴权参数，生成url
-		url = self.imageUnderstandingUrl + '?' + urlencode(v)
+		url = self.imageUnderstandingUrl + "?" + urlencode(v)
 		return url
 
 
@@ -87,7 +84,7 @@ class SparkImageRecognizer(imageRecog.ImageRecognizer):
 		self.updateAuthenticationConfiguration(
 			config.conf["xinyiOcr"]["IDG"]["spark"]["appId"],
 			config.conf["xinyiOcr"]["IDG"]["spark"]["apiSecret"],
-			config.conf["xinyiOcr"]["IDG"]["spark"]["apiKey"]
+			config.conf["xinyiOcr"]["IDG"]["spark"]["apiKey"],
 		)
 		log.debug("【讯飞图片识别】构造函数执行完成")
 
@@ -115,9 +112,9 @@ class SparkImageRecognizer(imageRecog.ImageRecognizer):
 	def on_message(self, ws, message):
 		log.debug("【讯飞图片识别】收到websocket消息的处理")
 		data = json.loads(message)
-		code = data['header']['code']
+		code = data["header"]["code"]
 		if code != 0:
-		# raise ImageRecognitionException(f"请求错误： {code}, {data}"")
+			# raise ImageRecognitionException(f"请求错误： {code}, {data}"")
 			ws.close()
 		else:
 			choices = data["payload"]["choices"]
@@ -133,23 +130,17 @@ class SparkImageRecognizer(imageRecog.ImageRecognizer):
 		通过appId和用户的提问来生成请求参数
 		"""
 		data = {
-			"header": {
-				"app_id": appId
-			},
+			"header": {"app_id": appId},
 			"parameter": {
 				"chat": {
 					"domain": "image",
 					"temperature": 0.5,
 					"top_k": 4,
 					"max_tokens": 2028,
-					"auditing": "default"
+					"auditing": "default",
 				}
 			},
-			"payload": {
-				"message": {
-					"text": question
-				}
-			}
+			"payload": {"message": {"text": question}},
 		}
 		return data
 
@@ -160,18 +151,20 @@ class SparkImageRecognizer(imageRecog.ImageRecognizer):
 		self.updateAuthenticationConfiguration(
 			config.conf["xinyiOcr"]["IDG"]["spark"]["appId"],
 			config.conf["xinyiOcr"]["IDG"]["spark"]["apiSecret"],
-			config.conf["xinyiOcr"]["IDG"]["spark"]["apiKey"]
+			config.conf["xinyiOcr"]["IDG"]["spark"]["apiKey"],
 		)
 		self.answer = ""
 		self.imageData = imageData
 		question = self.checklen(self.getText("user", _(self._getPrompt())))
 		if not self.appId or not self.apiSecret or not self.apiKey:
-		# Translators: authencation empty
+			# Translators: authencation empty
 			log.debug("【讯飞图片识别】API密钥为空")
 			raise AuthenticationException(_("Please setup Ifly image understanding API key first"))
 
 		try:
-			wsParam = Ws_Param(self.appId, self.apiKey, self.apiSecret, SparkImageRecognizer.imageUnderstandingUrl)
+			wsParam = Ws_Param(
+				self.appId, self.apiKey, self.apiSecret, SparkImageRecognizer.imageUnderstandingUrl
+			)
 			websocket.enableTrace(False)
 			wsUrl = wsParam.createUrl()
 			ws = websocket.WebSocketApp(
@@ -179,7 +172,8 @@ class SparkImageRecognizer(imageRecog.ImageRecognizer):
 				on_message=self.on_message,
 				on_error=self.on_error,
 				on_close=self.on_close,
-				on_open=self.on_open)
+				on_open=self.on_open,
+			)
 			ws.appId = self.appId
 			ws.imageData = imageData
 			ws.question = question
@@ -192,7 +186,13 @@ class SparkImageRecognizer(imageRecog.ImageRecognizer):
 		return self.answer
 
 	def getText(self, role, content):
-		self.text = [{"role": "user", "content": str(base64.b64encode(self.imageData), 'utf-8'), "content_type":"image"}]
+		self.text = [
+			{
+				"role": "user",
+				"content": str(base64.b64encode(self.imageData), "utf-8"),
+				"content_type": "image",
+			}
+		]
 		jsoncon = {}
 		jsoncon["role"] = role
 		jsoncon["content"] = content
@@ -208,16 +208,16 @@ class SparkImageRecognizer(imageRecog.ImageRecognizer):
 		return length
 
 	def checklen(self, text):
-		while (self.getlength(text[1:])> 8000):
+		while self.getlength(text[1:]) > 8000:
 			del text[1]
 		return text
 
 	def updateAuthenticationConfiguration(self, appId, apiSecret, apiKey):
 		"""
-Update authentication configuration
-		@param appId: APP ID
-		@param appSecret: API secret
-		@param apiKey: API key
+		Update authentication configuration
+				@param appId: APP ID
+				@param appSecret: API secret
+				@param apiKey: API key
 		"""
 		self.appId = appId
 		self.apiSecret = apiSecret

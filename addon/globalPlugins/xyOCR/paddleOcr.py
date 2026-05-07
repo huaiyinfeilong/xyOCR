@@ -10,6 +10,7 @@ from contentRecog import ContentRecognizer, LinesWordsResult, RecogImageInfo
 import addonHandler
 from .PPOCR_api import PPOCR
 from ctypes import wintypes
+
 sys.path.append("\\".join(os.path.dirname(__file__).split("\\")[:-1]) + "\\_py3_contrib")
 from PIL import Image
 
@@ -18,13 +19,7 @@ addonHandler.initTranslation()
 
 # PaddleOCR-json.exe path
 MODEL_ENGINE = os.path.abspath(
-	os.path.join(
-		os.path.dirname(__file__),
-		"..",
-		"models",
-		"PaddleOCR-json",
-		"PaddleOCR_json.exe"
-	)
+	os.path.join(os.path.dirname(__file__), "..", "models", "PaddleOCR-json", "PaddleOCR_json.exe")
 )
 
 
@@ -54,7 +49,7 @@ class PaddleOcr(ContentRecognizer):
 		self.mutex = winKernel.kernel32.CreateMutexA(
 			wintypes.DWORD(0),
 			wintypes.BOOL(True),
-			wintypes.LPSTR(bytes("{EFB13F9C-E93B-4135-A31C-F15E3DED8640}".encode("utf-8")))
+			wintypes.LPSTR(bytes("{EFB13F9C-E93B-4135-A31C-F15E3DED8640}".encode("utf-8"))),
 		)
 		# Initialize the PaddleOCR engine
 		if self.ocr is None:
@@ -72,7 +67,7 @@ class PaddleOcr(ContentRecognizer):
 		if self._thread is None or not self._thread.is_alive():
 			self._thread = threading.Thread(
 				target=self._recognize,
-				kwargs={"pixels": pixels, "image_info": image_info, "on_result": on_result}
+				kwargs={"pixels": pixels, "image_info": image_info, "on_result": on_result},
 			)
 			self._thread.start()
 
@@ -105,7 +100,8 @@ class PaddleOcr(ContentRecognizer):
 				"y": box[0][1],
 				"width": box[1][0] - box[0][0],
 				"height": box[2][1] - box[0][1],
-				"text": text}
+				"text": text,
+			}
 			words = list()
 			words.append(word)
 			lines.append(words)
