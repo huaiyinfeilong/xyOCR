@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 'xyOCR' '1.0'\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
-"POT-Creation-Date: 2025-10-01 21:17+0800\n"
+"POT-Creation-Date: 2026-05-07 22:48+0800\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -33,11 +33,11 @@ msgstr "API key 或 API secret 不正确。"
 #: addon\globalPlugins\xyOCR\imageRecog.py:123
 #: addon\globalPlugins\xyOCR\paddleOcr.py:90
 #: addon\globalPlugins\xyOCR\paddleOcr.py:124
-#: addon\globalPlugins\xyOCR\__init__.py:230
-#: addon\globalPlugins\xyOCR\__init__.py:242
-#: addon\globalPlugins\xyOCR\__init__.py:269
-#: addon\globalPlugins\xyOCR\__init__.py:292
-#: addon\globalPlugins\xyOCR\__init__.py:310
+#: addon\globalPlugins\xyOCR\__init__.py:237
+#: addon\globalPlugins\xyOCR\__init__.py:249
+#: addon\globalPlugins\xyOCR\__init__.py:276
+#: addon\globalPlugins\xyOCR\__init__.py:299
+#: addon\globalPlugins\xyOCR\__init__.py:317
 msgid "Recognition failed"
 msgstr "识别失败"
 
@@ -179,44 +179,44 @@ msgid "Password"
 msgstr "密码"
 
 #. Translators: Choose OCR engine
-#: addon\globalPlugins\xyOCR\__init__.py:203
+#: addon\globalPlugins\xyOCR\__init__.py:210
 msgid "Switch OCR engine"
 msgstr "切换OCR引擎"
 
 #. Translators: Text recognition
-#: addon\globalPlugins\xyOCR\__init__.py:222
+#: addon\globalPlugins\xyOCR\__init__.py:229
 msgid "Text recognition"
 msgstr "文字识别"
 
-#: addon\globalPlugins\xyOCR\__init__.py:235
-#: addon\globalPlugins\xyOCR\__init__.py:289
+#: addon\globalPlugins\xyOCR\__init__.py:242
+#: addon\globalPlugins\xyOCR\__init__.py:296
 msgid "Please turn off the screen curtain before recognition"
 msgstr "识别前请关闭黑屏"
 
 #. Translators: Clipboard recognition
-#: addon\globalPlugins\xyOCR\__init__.py:246
+#: addon\globalPlugins\xyOCR\__init__.py:253
 msgid "Clipboard text recognition"
 msgstr "剪贴板文字识别"
 
 #. Translators: Already in a content recognition result
-#: addon\globalPlugins\xyOCR\__init__.py:261
-#: addon\globalPlugins\xyOCR\__init__.py:305
+#: addon\globalPlugins\xyOCR\__init__.py:268
+#: addon\globalPlugins\xyOCR\__init__.py:312
 msgid "Already in a content recognition result"
 msgstr "现已处于内容识别结果区域"
 
 #. Translators: Recognizing
-#: addon\globalPlugins\xyOCR\__init__.py:264
-#: addon\globalPlugins\xyOCR\__init__.py:308
+#: addon\globalPlugins\xyOCR\__init__.py:271
+#: addon\globalPlugins\xyOCR\__init__.py:315
 msgid "Recognizing"
 msgstr "正在识别"
 
 #. Translators: Image description
-#: addon\globalPlugins\xyOCR\__init__.py:281
+#: addon\globalPlugins\xyOCR\__init__.py:288
 msgid "Image description"
 msgstr "图像描述"
 
 #. Translators: Clipboard image description
-#: addon\globalPlugins\xyOCR\__init__.py:298
+#: addon\globalPlugins\xyOCR\__init__.py:305
 msgid "Clipboard image description"
 msgstr "剪贴板图像描述"
 
@@ -229,7 +229,11 @@ msgstr "整合各种离线和在线 OCR 服务。"
 #. Brief changelog for this version
 #. Translators: what's new content for the add-on version to be shown in the add-on store
 #: buildVars.py:29
-msgid "Compatible with NVDA 2 0 2 5.1 and above."
+#, fuzzy
+msgid ""
+"### 3.2.1\n"
+"\n"
+"Compatible with NVDA 2026.1."
 msgstr "与 NVDA 2 0 2 5.1 及以上版本兼容。"
 
 #~ msgid "Using share key"
