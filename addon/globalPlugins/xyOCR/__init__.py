@@ -109,9 +109,14 @@ class XinyiOcrSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		self.nvdacnPassCtrl = nvdacnGroup.addLabeledControl(
 			_(nvdacnPassLabel), wx.TextCtrl, style=wx.TE_PASSWORD
 		)
-		encrypted_password = config.conf["xinyiOcr"]["nvdacn_account"]["password"]
-		self.original_decrypted_password = decrypt(encrypted_password)
-		self.nvdacnPassCtrl.SetValue(self.original_decrypted_password)
+		self.original_encrypted_password = config.conf["xinyiOcr"]["nvdacn_account"]["password"]
+		self.original_decrypted_password = decrypt(self.original_encrypted_password)
+		self.nvdacn_password_decrypt_failed = self.original_decrypted_password is None
+		if self.nvdacn_password_decrypt_failed:
+			log.warning("DPAPI: Failed to decrypt the stored NVDACN password; keeping the existing value.")
+			self.original_decrypted_password = ""
+		else:
+			self.nvdacnPassCtrl.SetValue(self.original_decrypted_password)
 
 	def onSave(self):
 		# 保存配置
@@ -124,8 +129,15 @@ class XinyiOcrSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		config.conf["xinyiOcr"]["IDG"]["prompt"] = self.idgPromptTextCtrl.GetValue()
 		config.conf["xinyiOcr"]["nvdacn_account"]["user"] = self.nvdacnUserCtrl.GetValue()
 		current_password_input = self.nvdacnPassCtrl.GetValue()
-		if current_password_input != self.original_decrypted_password:
-			config.conf["xinyiOcr"]["nvdacn_account"]["password"] = encrypt(current_password_input)
+		if self.nvdacn_password_decrypt_failed and not current_password_input:
+			config.conf["xinyiOcr"]["nvdacn_account"]["password"] = self.original_encrypted_password
+		elif current_password_input != self.original_decrypted_password:
+			encrypted_password = encrypt(current_password_input)
+			if encrypted_password is None:
+				log.error("DPAPI: Failed to encrypt the NVDACN password; keeping the existing value.")
+				config.conf["xinyiOcr"]["nvdacn_account"]["password"] = self.original_encrypted_password
+			else:
+				config.conf["xinyiOcr"]["nvdacn_account"]["password"] = encrypted_password
 
 
 # Translators: Script description

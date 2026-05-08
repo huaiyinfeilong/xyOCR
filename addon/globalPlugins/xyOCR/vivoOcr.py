@@ -97,6 +97,10 @@ class VivoOcr(ocr.Ocr):
 			user = config.conf["xinyiOcr"]["nvdacn_account"]["user"]
 			encrypted_password = config.conf["xinyiOcr"]["nvdacn_account"]["password"]
 			password = decrypt(encrypted_password)
+			if password is None:
+				log.error("Vivo OCR: NVDACN password failed to decrypt.")
+				ui.message(_("Please configure your NVDACN account in Xinyi OCR settings."))
+				return
 
 			if not user or not password:
 				log.error("Vivo OCR: NVDACN credentials are not configured or failed to decrypt.")
