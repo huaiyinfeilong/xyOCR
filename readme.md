@@ -32,6 +32,11 @@ Any comments and suggestions are welcome to communicate:
 * WeChat: huaiyinfeilong
 
 ## Upgrade log
+
+### 3.2.1
+
+* Compatible with NVDA 2026.1
+
 ### Version 3.2.0
 
 * Support Vivo OCR engine (authorized by NVDACN).

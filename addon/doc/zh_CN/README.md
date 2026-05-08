@@ -32,6 +32,11 @@
 * 微信：huaiyinfeilong
 
 ## 升级日志
+
+### 3.2.1
+
+* 兼容 NVDA 2026.1
+
 ### Version 3.2.0
 
 * 支持Vivo OCR引擎（由 NVDACN 授权）。
